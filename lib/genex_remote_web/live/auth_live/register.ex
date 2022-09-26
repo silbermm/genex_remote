@@ -27,6 +27,15 @@ defmodule GenexRemoteWeb.AuthLive.Register do
   def render(assigns) do
     ~H"""
     <h1>Register a new account</h1>
+    
+    <div>
+      <p>
+      An account on Genex requires a GPG public key and the associated email address. 
+
+      Once you add those things, you'll get back an encrypted message that you'll need to decrypt and send back.
+      Doing this verifys that you hold the private key for the uploaded public key thus it is in fact you.
+      </p>
+    </div>
 
     <.form :let={f} for={@changeset} phx-submit="register">
       <%= label(f, :email, "Email") %>
