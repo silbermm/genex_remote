@@ -12,6 +12,6 @@ defmodule GenexRemote.Auth do
   @spec create_account(map()) :: {:ok, Account.t()} | {:error, Changeset.t()}
   def create_account(changes) do
     changeset = Account.changeset(%Account{}, changes)
-    Repo.insert(changeset)  
+    Repo.insert(changeset)
   end
 end
