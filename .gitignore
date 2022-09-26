@@ -36,3 +36,4 @@ npm-debug.log
 *.db
 *.db-*
 
+/genex_remote_dev.db 

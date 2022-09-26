@@ -17,7 +17,10 @@ defmodule GenexRemoteWeb.Router do
   scope "/", GenexRemoteWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    live "/", HomeLive.Index, :index
+
+    live "/register", AuthLive.Register, :register
+    live "/login", AuthLive.Login, :login
   end
 
   # Other scopes may use custom stacks.
