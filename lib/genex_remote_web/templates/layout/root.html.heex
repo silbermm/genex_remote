@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content={csrf_token_value()} />
-    <.live_title suffix="| Genex">
+    <.live_title suffix=" | Genex">
       <%= assigns[:page_title] || "" %>
     </.live_title>
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")} />
@@ -21,6 +21,10 @@
     <header>
       Genex
     </header>
+    <nav>
+      <.link navigate={Routes.auth_register_path(@conn, :register)} class="underline">Register</.link>
+      <.link navigate={Routes.auth_login_path(@conn, :login)} class="underline">Login</.link>
+    </nav>
     <%= @inner_content %>
   </body>
 </html>
