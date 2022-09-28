@@ -43,12 +43,25 @@ defmodule GenexRemoteWeb.AuthLive.Register do
   @impl true
   def handle_event("register", %{"account" => params}, socket) do
     case Auth.create_account(params) do
-      {:ok, account} ->
-        # TODO: return an encrypted message to make sure the
-        # user actually owns the private key
+      {:ok, account, challenge_changeset} ->
         {:noreply,
          socket
-         |> assign(:account, account)
+         |> assign(account: account, challenge_changeset: challenge_changeset)
+         |> push_patch(to: Routes.auth_register_path(socket, :validate), replace: true)}
+
+      {:error, changeset} ->
+        {:noreply,
+         socket |> put_flash(:error, "fix the following errors") |> assign(changeset: changeset)}
+    end
+  end
+
+  @impl true
+  def handle_event("submit_proof", %{"account" => params}, socket) do
+    case Auth.submit_challenge(socket.assigns.account, params) do
+      {:ok, account, challenge_changeset} ->
+        {:noreply,
+         socket
+         |> assign(account: account, challenge_changeset: challenge_changeset)
          |> push_patch(to: Routes.auth_register_path(socket, :validate), replace: true)}
 
       {:error, changeset} ->
@@ -73,17 +86,31 @@ defmodule GenexRemoteWeb.AuthLive.Register do
       </p>
     </div>
 
-    <.form :let={f} for={@changeset} phx-submit="register">
-      <%= label(f, :email, "Email") %>
-      <%= text_input(f, :email) %>
-      <%= error_tag(f, :email) %>
+    <%= if @live_action == :register do %>
+      <.form :let={f} for={@changeset} phx-submit="register">
+        <%= label(f, :email, "Email") %>
+        <%= text_input(f, :email) %>
+        <%= error_tag(f, :email) %>
 
-      <%= label(f, :public_key, "Public Key") %>
-      <%= textarea(f, :public_key, placeholder: "Enter your Public Key") %>
-      <%= error_tag(f, :public_key) %>
+        <%= label(f, :public_key, "Public Key") %>
+        <%= textarea(f, :public_key, placeholder: "Enter your Public Key") %>
+        <%= error_tag(f, :public_key) %>
 
-      <%= submit("Register") %>
-    </.form>
+        <%= submit("Register") %>
+      </.form>
+    <% end %>
+
+    <%= if @live_action == :validate do %>
+      <p> To prove you own this key, decrypt the following message a submit the decrtyped value </p>
+      <pre> <%= @account.encrypted_challenge %> </pre>
+      <.form :let={f} for={@challenge_changeset} phx-submit="submit_proof">
+        <%= label(f, :challenge, "Decrypted Challenge") %>
+        <%= text_input(f, :challenge) %>
+        <%= error_tag(f, :challenge) %>
+
+        <%= submit("Prove") %>
+      </.form>
+    <% end %>
     """
   end
 end
