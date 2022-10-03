@@ -22,8 +22,16 @@
       Genex
     </header>
     <nav>
-      <.link navigate={Routes.auth_register_path(@conn, :register)} class="underline">Register</.link>
-      <.link navigate={Routes.auth_login_path(@conn, :login)} class="underline">Login</.link>
+      <%= if assigns[:account] do %>
+        <.link navigate={Routes.session_path(@conn, :logout)} class="underline">
+          Logout
+        </.link>
+      <% else %>
+        <.link navigate={Routes.auth_register_path(@conn, :register)} class="underline">
+          Register
+        </.link>
+        <.link navigate={Routes.auth_login_path(@conn, :login)} class="underline">Login</.link>
+      <% end %>
     </nav>
     <%= @inner_content %>
   </body>

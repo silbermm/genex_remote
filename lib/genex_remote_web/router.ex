@@ -8,20 +8,35 @@ defmodule GenexRemoteWeb.Router do
     plug :put_root_layout, {GenexRemoteWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug GenexRemoteWeb.Plugs.AuthPlug
   end
 
   pipeline :api do
     plug :accepts, ["json"]
   end
 
-  scope "/", GenexRemoteWeb do
-    pipe_through :browser
+  live_session :profile, on_mount: GenexRemoteWeb.Plugs.AuthHook do
+    scope "/profile", GenexRemoteWeb do
+      pipe_through :browser
 
-    live "/", HomeLive.Index, :index
+      live "/", ProfileLive.Index, :index
+    end
+  end
 
-    live "/register", AuthLive.Register, :register
-    live "/register/validate", AuthLive.Register, :validate
-    live "/login", AuthLive.Login, :login
+  live_session :auth, on_mount: {GenexRemoteWeb.Plugs.AuthHook, :maybe_load} do
+    scope "/", GenexRemoteWeb do
+      pipe_through :browser
+
+      live "/register", AuthLive.Register, :register
+      live "/register/validate", AuthLive.Register, :validate
+      live "/login", AuthLive.Login, :login
+      live "/login/email", AuthLive.Login, :email
+
+      get "/login/:token/email/:email", SessionController, :create_from_token
+      get "/logout", SessionController, :logout
+
+      live "/", HomeLive.Index, :index
+    end
   end
 
   # Other scopes may use custom stacks.

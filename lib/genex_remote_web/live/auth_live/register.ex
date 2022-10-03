@@ -19,7 +19,6 @@ defmodule GenexRemoteWeb.AuthLive.Register do
 
   @impl true
   def mount(_params, _session, socket) do
-    IO.inspect("MOUNT")
     account_changeset = Auth.new_blank_account()
     {:ok, assign(socket, changeset: account_changeset)}
   end
@@ -57,12 +56,14 @@ defmodule GenexRemoteWeb.AuthLive.Register do
 
   @impl true
   def handle_event("submit_proof", %{"account" => params}, socket) do
-    case Auth.submit_challenge(socket.assigns.account, params) do
-      {:ok, account, challenge_changeset} ->
+    token = Auth.generate_login_token()
+
+    case Auth.submit_challenge(socket.assigns.account, Map.put(params, "login_token", token)) do
+      {:ok, account} ->
         {:noreply,
-         socket
-         |> assign(account: account, challenge_changeset: challenge_changeset)
-         |> push_patch(to: Routes.auth_register_path(socket, :validate), replace: true)}
+         redirect(socket,
+           to: Routes.session_path(socket, :create_from_token, token, account.email)
+         )}
 
       {:error, changeset} ->
         {:noreply,
@@ -101,7 +102,7 @@ defmodule GenexRemoteWeb.AuthLive.Register do
     <% end %>
 
     <%= if @live_action == :validate do %>
-      <p> To prove you own this key, decrypt the following message a submit the decrtyped value </p>
+      <p>To prove you own this key, decrypt the following message a submit the decrtyped value</p>
       <pre> <%= @account.encrypted_challenge %> </pre>
       <.form :let={f} for={@challenge_changeset} phx-submit="submit_proof">
         <%= label(f, :challenge, "Decrypted Challenge") %>
