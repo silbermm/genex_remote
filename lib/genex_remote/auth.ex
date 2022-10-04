@@ -44,10 +44,17 @@ defmodule GenexRemote.Auth do
     Repo.update(challenge_changeset)
   end
 
-  @spec generate_login_token() :: String.t()
-  def generate_login_token do
-    :crypto.strong_rand_bytes(40) |> Base.url_encode64()
+  @spec send_magic_link(String.t()) :: :ok
+  def send_magic_link(email) do
+    DynamicSupervisor.start_child(
+      {:via, PartitionSupervisor, {GenexRemote.DynamicSupervisors, self()}},
+      {GenexRemote.AuthMailer, email}
+    )
+
+    :ok
   end
+
+  defdelegate generate_login_token, to: Account
 
   @spec authenticate_by_email_token(String.t(), String.t()) ::
           {:ok, Account.t()} | {:error, :unauthorized}

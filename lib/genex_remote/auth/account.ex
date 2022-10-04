@@ -45,6 +45,9 @@ defmodule GenexRemote.Auth.Account do
     |> hash_login_token()
   end
 
+  @spec generate_login_token() :: String.t()
+  def generate_login_token, do: :crypto.strong_rand_bytes(40) |> Base.url_encode64()
+
   defp validate_challenge(changeset, account) do
     if changeset.valid? do
       challenge = get_change(changeset, :challenge)

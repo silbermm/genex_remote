@@ -24,6 +24,7 @@ defmodule GenexRemoteWeb.Plugs.AuthPlug do
 
   defp put_current_account(conn, account) do
     token = account && Phoenix.Token.sign(GenexRemoteWeb.Endpoint, "account auth", account.id)
+
     conn
     |> assign(:account, account)
     |> assign(:account_token, token)

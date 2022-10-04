@@ -1,6 +1,8 @@
 defmodule GenexRemoteWeb.AuthLive.Login do
   use GenexRemoteWeb, :live_view
 
+  alias GenexRemote.Auth
+
   defstruct [:email]
 
   @types %{email: :string}
@@ -23,13 +25,15 @@ defmodule GenexRemoteWeb.AuthLive.Login do
     |> Ecto.Changeset.apply_action(:validate)
     |> case do
       {:ok, _} ->
+        Auth.send_magic_link(email)
+
         {:noreply,
          socket
          |> put_flash(:success, "Look for an email")
          |> push_patch(to: Routes.auth_login_path(socket, :email))}
 
       {:error, changeset} ->
-        {:noreply, socket |> put_flash(:error, "Fix the errors") |> assign(changeset: changeset)}
+        {:noreply, assign(socket, changeset: changeset)}
     end
   end
 
