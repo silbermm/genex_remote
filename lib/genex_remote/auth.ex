@@ -34,9 +34,7 @@ defmodule GenexRemote.Auth do
   end
 
   @spec get_account(String.t()) :: Account.t()
-  def get_account(account_id) do
-    Repo.get(Account, account_id)
-  end
+  def get_account(account_id), do: Repo.get(Account, account_id)
 
   @spec submit_challenge(Account.t(), map()) :: {:ok, Account.t()} | {:error, Changeset.t()}
   def submit_challenge(account, params) do
@@ -50,7 +48,6 @@ defmodule GenexRemote.Auth do
       {:via, PartitionSupervisor, {GenexRemote.DynamicSupervisors, self()}},
       {GenexRemote.AuthMailer, email}
     )
-
     :ok
   end
 

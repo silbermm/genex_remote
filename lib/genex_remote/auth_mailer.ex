@@ -1,4 +1,17 @@
 defmodule GenexRemote.AuthMailer do
+  @moduledoc """
+  Process that spins up when a new login link is requested
+  via `GenexRemote.Auth.send_magic_link/1`.
+
+  It takes an email address as an argument then:
+  * looks up a valid account for that email
+  * generates a login token
+  * emails login token
+  * terminates
+
+  Supervised by a DynamicSupervisor `GenexRemote.DynamicSupervisors`
+
+  """
   use GenServer, restart: :transient
 
   alias GenexRemote.Auth.Account

@@ -1,23 +1,32 @@
 defmodule GenexRemoteWeb.Plugs.AuthHook do
   @moduledoc """
-  Ensures the account_id is in the session
-  then `assigns` the current user to all LiveViews attaching this hook.
+  Ensures the auth_token is in the session
+  then `assigns` the current account to all LiveViews attaching this hook.
   """
   import Phoenix.LiveView
   import Phoenix.Component
   alias GenexRemote.Auth
   alias GenexRemoteWeb.Router.Helpers, as: Routes
 
-  def on_mount(:default, _params, %{"account_id" => account_id}, socket) do
-    account = Auth.get_account(account_id)
+  def on_mount(:default, _params, %{"auth_token" => auth_token}, socket) do
+    case GenexRemoteWeb.Tokens.verify_auth_token(auth_token) do
+      {:ok, account_id} ->
+        account = Auth.get_account(account_id)
 
-    if account.validated == nil do
-      {:halt,
-       socket
-       |> put_flash(:error, "must be logged in")
-       |> redirect(to: Routes.home_index_path(GenexRemoteWeb.Endpoint, :index))}
-    else
-      {:cont, assign(socket, :account, account)}
+        if account.validated == nil do
+          {:halt,
+           socket
+           |> put_flash(:error, "must be logged in")
+           |> redirect(to: Routes.home_index_path(GenexRemoteWeb.Endpoint, :index))}
+        else
+          {:cont, assign(socket, :account, account)}
+        end
+
+      {:error, _reason} ->
+        {:halt,
+         socket
+         |> put_flash(:error, "must be logged in")
+         |> redirect(to: Routes.home_index_path(GenexRemoteWeb.Endpoint, :index))}
     end
   end
 
@@ -28,16 +37,22 @@ defmodule GenexRemoteWeb.Plugs.AuthHook do
      |> redirect(to: Routes.home_index_path(GenexRemoteWeb.Endpoint, :index))}
   end
 
-  def on_mount(:maybe_load, _params, %{"account_id" => account_id}, socket) do
-    account = Auth.get_account(account_id)
+  def on_mount(:maybe_load, _params, %{"auth_token" => auth_token}, socket) do
+    case GenexRemoteWeb.Tokens.verify_auth_token(auth_token) do
+      {:ok, account_id} ->
+        account = Auth.get_account(account_id)
 
-    if account.validated == nil do
-      {:halt,
-       socket
-       |> put_flash(:error, "must be logged in")
-       |> redirect(to: Routes.home_index_path(GenexRemoteWeb.Endpoint, :index))}
-    else
-      {:cont, assign(socket, account: account, logged_in: true)}
+        if account.validated == nil do
+          {:halt,
+           socket
+           |> put_flash(:error, "must be logged in")
+           |> redirect(to: Routes.home_index_path(GenexRemoteWeb.Endpoint, :index))}
+        else
+          {:cont, assign(socket, account: account, logged_in: true)}
+        end
+
+      {:error, _reason} ->
+        {:cont, assign(socket, account: nil, logged_in: false)}
     end
   end
 

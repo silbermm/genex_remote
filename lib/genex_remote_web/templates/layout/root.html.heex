@@ -23,6 +23,9 @@
     </header>
     <nav>
       <%= if assigns[:account] do %>
+        <.link navigate={Routes.profile_index_path(@conn, :index)} class="underline">
+          Profile
+        </.link>
         <.link navigate={Routes.session_path(@conn, :logout)} class="underline">
           Logout
         </.link>
