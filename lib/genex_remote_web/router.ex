@@ -39,10 +39,12 @@ defmodule GenexRemoteWeb.Router do
     end
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", GenexRemoteWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", GenexRemoteWeb do
+    pipe_through :api
+
+    get "/login/:email", SessionController, :api_request_challenge
+    post "/login/:email", SessionController, :api_submit_challenge_response
+  end
 
   # Enables LiveDashboard only for development
   #

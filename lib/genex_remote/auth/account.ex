@@ -45,9 +45,6 @@ defmodule GenexRemote.Auth.Account do
     |> hash_login_token()
   end
 
-  @spec generate_login_token() :: String.t()
-  def generate_login_token, do: :crypto.strong_rand_bytes(40) |> Base.url_encode64()
-
   defp validate_challenge(changeset, account) do
     if changeset.valid? do
       challenge = get_change(changeset, :challenge)
@@ -99,9 +96,9 @@ defmodule GenexRemote.Auth.Account do
     end
   end
 
-  defp create_challenge(changeset) do
+  def create_challenge(changeset) do
     if changeset.valid? do
-      email = get_change(changeset, :email)
+      email = get_change(changeset, :email) || get_field(changeset, :email)
       dice = Diceware.generate()
 
       case GPG.encrypt(email, dice.phrase) do

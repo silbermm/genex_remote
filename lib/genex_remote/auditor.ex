@@ -13,7 +13,7 @@ defmodule GenexRemote.Auditor do
 
   @log_prefix "[Auditor] | "
 
-  ##### Public API 
+  ##### Public API
 
   def write_audit_log(account_id, action, metadata \\ %{}) do
     params = %{account_id: account_id, action: action, metadata: metadata}
@@ -27,11 +27,7 @@ defmodule GenexRemote.Auditor do
   end
 
   ##### PROCESS DEFINITION AND LOGIC
-
-  def start_link(params) do
-    Logger.error("HELLO")
-    GenServer.start_link(__MODULE__, params)
-  end
+  def start_link(params), do: GenServer.start_link(__MODULE__, params)
 
   @impl true
   def init(params) do
@@ -42,7 +38,6 @@ defmodule GenexRemote.Auditor do
     ])
 
     changeset = AuditLog.changeset(%AuditLog{}, params)
-    IO.inspect(changeset)
     {:ok, %{changeset: changeset}, {:continue, :commit}}
   end
 

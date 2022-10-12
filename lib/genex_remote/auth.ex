@@ -24,8 +24,10 @@ defmodule GenexRemote.Auth do
 
     case Repo.insert(changeset) do
       {:ok, account} ->
+        GenexRemote.Auditor.write_audit_log(account.id, :registered)
         # return the account and a challenge changeset
         challenge_changeset = Account.challenge_changeset(account, %{})
+
         {:ok, account, challenge_changeset}
 
       err ->
@@ -48,6 +50,7 @@ defmodule GenexRemote.Auth do
       {:via, PartitionSupervisor, {GenexRemote.DynamicSupervisors, self()}},
       {GenexRemote.AuthMailer, email}
     )
+
     :ok
   end
 
@@ -75,6 +78,42 @@ defmodule GenexRemote.Auth do
           Logger.error("unable to verify login token")
           {:error, :unauthorized}
         end
+    end
+  end
+
+  def generate_api_login_challenge(email) do
+    # find the account for the requested email
+    case get_verified_account_by_email(email) do
+      nil ->
+        no_user_verify()
+        {:error, :unauthorized}
+
+      account ->
+        account
+        |> Account.changeset(%{})
+        |> Account.create_challenge()
+        |> Repo.update()
+        |> case do
+          {:ok, account} ->
+            GenexRemote.Auditor.write_audit_log(account.id, :api_login_challenge_created)
+            {:ok, account.encrypted_challenge}
+
+          err ->
+            err
+        end
+    end
+  end
+
+  def validate_challenge_response(email, response) do
+    case get_verified_account_by_email(email) do
+      nil ->
+        no_user_verify()
+        {:error, :unauthorized}
+
+      account ->
+        account
+        |> Account.challenge_changeset(%{challenge: response, login_token: nil})
+        |> Repo.update()
     end
   end
 
