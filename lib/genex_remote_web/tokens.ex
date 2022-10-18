@@ -27,4 +27,8 @@ defmodule GenexRemoteWeb.Tokens do
       max_age: @api_token_age
     )
   end
+
+  def verify_api_auth_token(auth_token) do
+    Phoenix.Token.verify(GenexRemoteWeb.Endpoint, @api_auth_token_salt, auth_token)
+  end
 end

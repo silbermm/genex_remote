@@ -15,6 +15,11 @@ defmodule GenexRemoteWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :api_authenticated do
+    plug :accepts, ["json"]
+    plug GenexRemoteWeb.Plugs.ApiAuthPlug
+  end
+
   live_session :profile, on_mount: GenexRemoteWeb.Plugs.AuthHook do
     scope "/profile", GenexRemoteWeb do
       pipe_through :browser
@@ -44,7 +49,15 @@ defmodule GenexRemoteWeb.Router do
 
     get "/login/:email", SessionController, :api_request_challenge
     post "/login/:email", SessionController, :api_submit_challenge_response
+
+    scope "/" do
+      pipe_through :api_authenticated
+
+      get "/passwords", PasswordsController, :list
+      post "/passwords", PasswordsController, :save
+    end
   end
+
 
   # Enables LiveDashboard only for development
   #
