@@ -10,7 +10,7 @@ defmodule GenexRemoteWeb.PasswordsController do
 
     conn
     |> put_status(200)
-    |> json(%{passwords: latest})
+    |> json(%{passwords: latest.data})
   end
 
   def save(conn, %{"passwords" => passwords}) do
