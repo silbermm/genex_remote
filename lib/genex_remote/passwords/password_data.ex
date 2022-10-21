@@ -15,7 +15,7 @@ defmodule GenexRemote.Passwords.PasswordData do
   @doc false
   def changeset(password_data, attrs) do
     password_data
-    |> cast(attrs, [:data])
-    |> validate_required([:data])
+    |> cast(attrs, [:data, :account_id, :shared_with])
+    |> validate_required([:data, :account_id])
   end
 end

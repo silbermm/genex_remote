@@ -13,7 +13,7 @@ defmodule GenexRemoteWeb.PasswordsController do
     |> json(%{passwords: latest})
   end
 
-  def save(conn, %{passwords: passwords}) do
+  def save(conn, %{"passwords" => passwords}) do
     account = conn.assigns.account
     # build a changeset for saving the passwords
     case Passwords.save(account.id, passwords) do
