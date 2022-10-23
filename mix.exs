@@ -44,7 +44,8 @@ defmodule GenexRemote.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:diceware, "~> 0.2.8"},
       {:gpgmex, "~> 0.0.3"},
-      {:argon2_elixir, "~> 3.0"}
+      {:argon2_elixir, "~> 3.0"},
+      {:recon, "~> 2.5.2"}
     ]
   end
 

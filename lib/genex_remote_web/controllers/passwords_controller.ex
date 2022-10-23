@@ -2,15 +2,24 @@ defmodule GenexRemoteWeb.PasswordsController do
   use GenexRemoteWeb, :controller
 
   alias GenexRemote.Passwords
+  require Logger
 
   def list(conn, _params) do
     account = conn.assigns.account
 
-    latest = GenexRemote.Passwords.latest(account.id)
+    data =
+      case GenexRemote.Passwords.latest(account.id) do
+        %{data: password_data} ->
+          password_data
+
+        d ->
+          Logger.debug("password data not found in #{inspect(d)}")
+          ""
+      end
 
     conn
     |> put_status(200)
-    |> json(%{passwords: latest.data})
+    |> json(%{passwords: data})
   end
 
   def save(conn, %{"passwords" => passwords}) do
