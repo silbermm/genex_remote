@@ -65,11 +65,15 @@ COPY config/runtime.exs config/
 COPY rel rel
 RUN mix release
 
+
+# Fetch the LiteFS binary using a multi-stage build.
+FROM flyio/litefs:0.2 AS litefs
+
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
 
-RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales gpg libgpgme-dev \
+RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales gpg libgpgme-dev bash curl fuse sqlite3 \
   && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Set the locale
@@ -81,25 +85,28 @@ ENV LC_ALL en_US.UTF-8
 ENV GNUPGHOME /data/gnupg
 
 WORKDIR "/app"
-RUN chown nobody /app
 
 # Storage for the database
-RUN mkdir -p /data
-RUN chown nobody /data
+RUN mkdir -p /data/db
 
 # For GPG
 RUN mkdir -p /data/gnupg
-RUN chown nobody /data/gnupg
+RUN gpg --update-trustdb
 
 # set runner ENV
 ENV MIX_ENV="prod"
 
-# Only copy the final release from the build stage
-COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/genex_remote ./
+COPY --from=litefs /usr/local/bin/litefs /usr/local/bin/litefs
+ADD litefs.yml /etc/litefs.yml
+RUN mkdir -p /mnt/data
 
-USER nobody
+#copy the final release from the build stage
+COPY --from=builder /app/_build/${MIX_ENV}/rel/genex_remote ./
 
-CMD ["/app/bin/server"]
+#CMD ["/app/bin/server"]
+# Run LiteFS as the entrypoint so it can execute "/app/bin/server" as a subprocess.
+ENTRYPOINT "litefs"
+
 # Appended by flyctl
 ENV ECTO_IPV6 true
 ENV ERL_AFLAGS "-proto_dist inet6_tcp"

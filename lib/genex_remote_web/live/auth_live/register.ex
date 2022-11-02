@@ -82,6 +82,7 @@ defmodule GenexRemoteWeb.AuthLive.Register do
         An account on Genex requires a GPG public key and the associated email address.
 
         TODO: explain how to create a GPG key
+        We are going to remove the email soon
 
         Once you add those things, you'll get back an encrypted message that you'll need to decrypt and send back.
         Doing this verifies that you hold the private key for the uploaded public key thus it is in fact you.

@@ -5,16 +5,9 @@ kill_signal = "SIGTERM"
 kill_timeout = 5
 processes = []
 
-[deploy]
-  release_command = "/app/bin/migrate"
-
 [env]
   PHX_HOST = "genex.fly.dev"
   PORT = "8080"
-
-[mounts]
-  source="genex_data"
-  destination="/data"
 
 [experimental]
   allowed_public_ports = []
