@@ -4,6 +4,8 @@ defmodule GenexRemote.Auth.Account do
   import Argon2
   import Ecto.Changeset
 
+  require Logger
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "accounts" do
@@ -34,7 +36,7 @@ defmodule GenexRemote.Auth.Account do
     account
     |> cast(attrs, [:challenge])
     |> validate_required([:challenge])
-    |> validate_challenge(account)
+    |> validate_challenge()
     |> hash_login_token()
   end
 
@@ -45,7 +47,7 @@ defmodule GenexRemote.Auth.Account do
     |> hash_login_token()
   end
 
-  defp validate_challenge(changeset, account) do
+  defp validate_challenge(changeset) do
     if changeset.valid? do
       challenge = get_change(changeset, :challenge)
       challenge_hash = get_field(changeset, :challenge_hash)
@@ -61,6 +63,11 @@ defmodule GenexRemote.Auth.Account do
     else
       changeset
     end
+  end
+
+  @spec generate_login_token() :: String.t()
+  def generate_login_token do
+    :crypto.strong_rand_bytes(40) |> Base.url_encode64()
   end
 
   defp hash_login_token(%{valid?: false} = changeset), do: changeset
@@ -89,9 +96,11 @@ defmodule GenexRemote.Auth.Account do
 
     case GPG.import_key(public_key) do
       :ok ->
+        Logger.info("imported key")
         changeset
 
       {:error, reason} ->
+        Logger.info("unable to import key #{inspect(reason)}")
         add_error(changeset, :public_key, "public key is invalid or mal-formed")
     end
   end
@@ -103,6 +112,8 @@ defmodule GenexRemote.Auth.Account do
 
       case GPG.encrypt(email, dice.phrase) do
         {:ok, encrypted} ->
+          Logger.info("encrypted phase successfully")
+
           changeset
           |> put_change(:encrypted_challenge, encrypted)
           |> change(add_hash(dice.phrase, hash_key: :challenge_hash))
@@ -112,6 +123,7 @@ defmodule GenexRemote.Auth.Account do
           )
 
         {:error, reason} ->
+          Logger.info("unable to encrypt phrase #{inspect(reason)}")
           add_error(changeset, :public_key, "unable to build a challenge")
       end
     end

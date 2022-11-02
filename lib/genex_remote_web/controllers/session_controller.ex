@@ -3,6 +3,8 @@ defmodule GenexRemoteWeb.SessionController do
 
   alias GenexRemote.Auth
 
+  require Logger
+
   def create_from_token(conn, %{"email" => email, "token" => token}) do
     case Auth.authenticate_by_email_token(email, token) do
       {:ok, account} ->
@@ -16,6 +18,7 @@ defmodule GenexRemoteWeb.SessionController do
         |> redirect(to: Routes.home_index_path(conn, :index))
 
       {:error, reason} ->
+        Logger.error(reason)
         conn
         |> put_flash(:error, "Invalid login")
         |> redirect(to: Routes.home_index_path(conn, :index))

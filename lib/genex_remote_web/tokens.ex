@@ -4,6 +4,9 @@ defmodule GenexRemoteWeb.Tokens do
   """
 
   @auth_token_salt "account auth"
+
+  @register_token_salt "registration"
+
   @api_auth_token_salt "api account auth"
 
   # 30 days
@@ -30,5 +33,9 @@ defmodule GenexRemoteWeb.Tokens do
 
   def verify_api_auth_token(auth_token) do
     Phoenix.Token.verify(GenexRemoteWeb.Endpoint, @api_auth_token_salt, auth_token)
+  end
+
+  def sign_registration_auth_token() do
+     Phoenix.Token.sign(GenexRemoteWeb.Endpoint, @register_token_salt, max_age: @api_token_age)
   end
 end

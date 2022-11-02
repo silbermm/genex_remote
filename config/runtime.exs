@@ -28,9 +28,22 @@ if config_env() == :prod do
       For example: /etc/genex_remote/genex_remote.db
       """
 
+ 
   config :genex_remote, GenexRemote.Repo,
     database: database_path,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "5")
+
+  
+  gpg_home = 
+    System.get_env("GNUPGHOME") || 
+    raise """
+    environment variable GNUPGHOME is missing
+    """
+  
+  config :gpgmex,
+    include_dir: ["/usr/include/x86_64-linux-gnu", "/usr/include"],
+    libs_dir: ["/usr/lib/x86_64-linux-gnu/libgpgme.so"],
+    gpg_home: gpg_home
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you

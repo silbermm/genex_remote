@@ -54,6 +54,7 @@ defmodule GenexRemoteWeb.AuthLive.Register do
     end
   end
 
+
   @impl true
   def handle_event("submit_proof", %{"account" => params}, socket) do
     token = Auth.generate_login_token()
@@ -83,7 +84,7 @@ defmodule GenexRemoteWeb.AuthLive.Register do
         TODO: explain how to create a GPG key
 
         Once you add those things, you'll get back an encrypted message that you'll need to decrypt and send back.
-        Doing this verifys that you hold the private key for the uploaded public key thus it is in fact you.
+        Doing this verifies that you hold the private key for the uploaded public key thus it is in fact you.
       </p>
     </div>
 

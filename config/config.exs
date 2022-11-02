@@ -29,6 +29,11 @@ config :genex_remote, GenexRemote.Mailer, adapter: Swoosh.Adapters.Local
 # Swoosh API client is needed for adapters other than SMTP.
 config :swoosh, :api_client, false
 
+config :gpgmex,
+  include_dir: ["/usr/include/x86_64-linux-gnu", "/usr/include"],
+  libs_dir: ["/usr/lib/x86_64-linux-gnu/libgpgme.so"],
+  gpg_home: System.get_env("GNUPGHOME") || "~/.gnupg"
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.14.29",
