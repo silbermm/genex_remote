@@ -103,6 +103,9 @@ RUN mkdir -p /mnt/data
 #copy the final release from the build stage
 COPY --from=builder /app/_build/${MIX_ENV}/rel/genex_remote ./
 
+COPY run.sh /scripts/run.sh
+RUN chmod 777 /scripts/run.sh
+
 #CMD ["/app/bin/server"]
 # Run LiteFS as the entrypoint so it can execute "/app/bin/server" as a subprocess.
 ENTRYPOINT "litefs"

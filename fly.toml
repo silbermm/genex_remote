@@ -1,4 +1,4 @@
-# fly.toml file generated for genex on 2022-10-24T20:58:00-04:00
+# fly.toml file generated for genex on 2022-11-02T16:32:40-04:00
 
 app = "genex"
 kill_signal = "SIGTERM"
