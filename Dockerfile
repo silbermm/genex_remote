@@ -21,6 +21,9 @@ ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
 FROM ${BUILDER_IMAGE} as builder
 
+ADD https://github.com/benbjohnson/litestream/releases/download/v0.3.9/litestream-v0.3.9-linux-amd64-static.tar.gz /tmp/litestream.tar.gz
+RUN tar -C /usr/local/bin -xzf /tmp/litestream.tar.gz
+
 # install build dependencies
 RUN apt-get update -y && apt-get install -y build-essential git gpg libgpgme-dev \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
@@ -34,7 +37,7 @@ RUN mix local.hex --force && \
 
 # set build ENV
 ENV MIX_ENV="prod"
-ENV GNUPGHOME /data/gnupg
+ENV GNUPGHOME /genex_data/gnupg
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
@@ -82,33 +85,34 @@ RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
-ENV GNUPGHOME /data/gnupg
+ENV GNUPGHOME /genex_data/gnupg
 
 WORKDIR "/app"
 
-# Storage for the database
-RUN mkdir -p /data/db
+# For DB
+RUN mkdir -p /genex_data/db
 
 # For GPG
-RUN mkdir -p /data/gnupg
+RUN mkdir -p /genex_data/gnupg
 RUN gpg --update-trustdb
 
 # set runner ENV
 ENV MIX_ENV="prod"
 
-COPY --from=litefs /usr/local/bin/litefs /usr/local/bin/litefs
-ADD litefs.yml /etc/litefs.yml
-RUN mkdir -p /mnt/data
 
 #copy the final release from the build stage
 COPY --from=builder /app/_build/${MIX_ENV}/rel/genex_remote ./
+COPY --from=builder /usr/local/bin/litestream /usr/local/bin/litestream
+COPY litestream.yml /etc/litestream.yml
 
 COPY run.sh /scripts/run.sh
 RUN chmod 777 /scripts/run.sh
 
-#CMD ["/app/bin/server"]
-# Run LiteFS as the entrypoint so it can execute "/app/bin/server" as a subprocess.
-ENTRYPOINT "litefs"
+CMD ["/scripts/run.sh"]
+
+# Appended by flyctl
+ENV ECTO_IPV6 true
+ENV ERL_AFLAGS "-proto_dist inet6_tcp"
 
 # Appended by flyctl
 ENV ECTO_IPV6 true

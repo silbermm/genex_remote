@@ -2,7 +2,7 @@
 mount-dir: "/data/db"
 
 # The path to where the underlying volume mount is.
-data-dir: "/mnt/data"
+data-dir: "/genex_data"
 
 # Execute this subprocess once LiteFS connects to the cluster. 
 exec: "/scripts/run.sh"

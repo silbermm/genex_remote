@@ -28,7 +28,6 @@ if config_env() == :prod do
       For example: /etc/genex_remote/genex_remote.db
       """
 
- 
   config :genex_remote, GenexRemote.Repo,
     database: database_path,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "5")
