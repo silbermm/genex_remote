@@ -9,7 +9,7 @@ defmodule GenexRemoteWeb.PasswordsController do
 
     data =
       case GenexRemote.Passwords.latest(account.id) do
-        %{data: password_data} ->
+        %Passwords.PasswordData{data: password_data} when password_data != "" ->
           password_data
 
         d ->

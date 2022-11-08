@@ -8,6 +8,7 @@ defmodule GenexRemote.Auth do
 
   alias GenexRemote.Auth.Account
   alias GenexRemote.Repo
+  alias Ecto.Changeset
 
   require Logger
 

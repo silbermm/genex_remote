@@ -8,7 +8,7 @@ defmodule GenexRemote.Passwords do
 
   import Ecto.Query
 
-  @spec latest(String.t()) :: [PasswordData.t()]
+  @spec latest(String.t()) :: PasswordData.t()
   def latest(account_id) do
     query =
       from(p in PasswordData,
