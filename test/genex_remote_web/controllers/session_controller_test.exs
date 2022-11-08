@@ -18,7 +18,10 @@ defmodule GenexRemoteWeb.SessionControllerTest do
 
     test "writes audit log", %{conn: conn, account: account, token: token, email: email} do
       get(conn, "/login/#{token}/email/#{email}")
-      audit_log = Repo.get_by(GenexRemote.Audits.AuditLog, account_id: account.id, action: :logged_in)
+
+      audit_log =
+        Repo.get_by(GenexRemote.Audits.AuditLog, account_id: account.id, action: :logged_in)
+
       assert audit_log
     end
 

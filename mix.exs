@@ -46,7 +46,7 @@ defmodule GenexRemote.MixProject do
       {:gpgmex, "~> 0.0.6"},
       {:argon2_elixir, "~> 3.0"},
       {:recon, "~> 2.5.2"},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false}
     ]
   end
 
