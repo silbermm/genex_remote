@@ -54,7 +54,6 @@ defmodule GenexRemoteWeb.AuthLive.Register do
     end
   end
 
-
   @impl true
   def handle_event("submit_proof", %{"account" => params}, socket) do
     token = Auth.generate_login_token()

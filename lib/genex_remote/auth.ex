@@ -54,7 +54,7 @@ defmodule GenexRemote.Auth do
     :ok
   end
 
-  defdelegate generate_login_token, to: Account 
+  defdelegate generate_login_token, to: Account
 
   @spec authenticate_by_email_token(String.t(), String.t()) ::
           {:ok, Account.t()} | {:error, :unauthorized}

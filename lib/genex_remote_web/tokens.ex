@@ -36,6 +36,6 @@ defmodule GenexRemoteWeb.Tokens do
   end
 
   def sign_registration_auth_token() do
-     Phoenix.Token.sign(GenexRemoteWeb.Endpoint, @register_token_salt, max_age: @api_token_age)
+    Phoenix.Token.sign(GenexRemoteWeb.Endpoint, @register_token_salt, max_age: @api_token_age)
   end
 end

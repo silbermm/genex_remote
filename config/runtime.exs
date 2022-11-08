@@ -32,13 +32,12 @@ if config_env() == :prod do
     database: database_path,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "5")
 
-  
-  gpg_home = 
-    System.get_env("GNUPGHOME") || 
-    raise """
-    environment variable GNUPGHOME is missing
-    """
-  
+  gpg_home =
+    System.get_env("GNUPGHOME") ||
+      raise """
+      environment variable GNUPGHOME is missing
+      """
+
   config :gpgmex,
     include_dir: ["/usr/include/x86_64-linux-gnu", "/usr/include"],
     libs_dir: ["/usr/lib/x86_64-linux-gnu/libgpgme.so"],

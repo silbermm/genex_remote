@@ -58,7 +58,6 @@ defmodule GenexRemoteWeb.Router do
     end
   end
 
-
   # Enables LiveDashboard only for development
   #
   # If you want to use the LiveDashboard in production, you should put

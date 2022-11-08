@@ -19,6 +19,7 @@ defmodule GenexRemoteWeb.SessionController do
 
       {:error, reason} ->
         Logger.error(reason)
+
         conn
         |> put_flash(:error, "Invalid login")
         |> redirect(to: Routes.home_index_path(conn, :index))
