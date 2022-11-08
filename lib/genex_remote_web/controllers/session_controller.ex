@@ -34,7 +34,7 @@ defmodule GenexRemoteWeb.SessionController do
         |> put_status(200)
         |> json(%{challenge: challenge})
 
-      {:error, reason} ->
+      {:error, _reason} ->
         conn
         |> put_status(500)
         |> json(%{message: "invalid email or public key"})

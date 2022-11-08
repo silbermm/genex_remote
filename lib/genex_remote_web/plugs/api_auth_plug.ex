@@ -1,7 +1,5 @@
 defmodule GenexRemoteWeb.Plugs.ApiAuthPlug do
   import Plug.Conn
-  import Phoenix.Controller
-  alias GenexRemoteWeb.Router.Helpers, as: Routes
   alias GenexRemote.Auth
 
   require Logger

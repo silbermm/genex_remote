@@ -3,6 +3,7 @@ defmodule GenexRemoteWeb.ProfileLive.Index do
 
   @page_title "Profile"
 
+  @impl true
   def mount(_, _, socket) do
     {:ok, assign(socket, :page_title, @page_title)}
   end

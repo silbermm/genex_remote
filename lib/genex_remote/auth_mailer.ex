@@ -58,17 +58,17 @@ defmodule GenexRemote.AuthMailer do
     |> Account.token_changeset(%{login_token: token})
     |> Repo.update()
     |> case do
-      {:error, changeset} ->
+      {:error, _changeset} ->
         Logger.error("#{@log_prefix} unable to update the account")
         {:stop, :normal, state}
 
-      {:ok, updated_account} ->
+      {:ok, _updated_account} ->
         {:noreply, %{state | token: token}, {:continue, :send_mail}}
     end
   end
 
   @impl true
-  def handle_continue(:send_mail, %{account: account, email: email, token: token} = state) do
+  def handle_continue(:send_mail, %{email: email, token: token} = state) do
     Logger.info("#{@log_prefix} send magic link")
     link = "http://localhost:4000/login/#{token}/email/#{email}"
     Logger.info("#{@log_prefix} #{link}")
@@ -88,6 +88,7 @@ defmodule GenexRemote.AuthMailer do
     {:stop, :normal, state}
   end
 
+  @impl true
   def terminate(:normal, state) do
     Logger.info("#{@log_prefix} cleanup and exit")
     {:ok, state}
