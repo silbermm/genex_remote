@@ -30,8 +30,6 @@ config :genex_remote, GenexRemote.Mailer, adapter: Swoosh.Adapters.Local
 config :swoosh, :api_client, false
 
 config :gpgmex,
-  include_dir: ["/usr/include/x86_64-linux-gnu", "/usr/include"],
-  libs_dir: ["/usr/lib/x86_64-linux-gnu/libgpgme.so"],
   gpg_home: System.get_env("GNUPGHOME") || "~/.gnupg"
 
 # Configure esbuild (the version is required)

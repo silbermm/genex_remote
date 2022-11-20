@@ -32,6 +32,7 @@ defmodule GenexRemote.Auth do
         {:ok, account, challenge_changeset}
 
       err ->
+        Logger.error(inspect err)
         err
     end
   end

@@ -38,10 +38,15 @@ if config_env() == :prod do
       environment variable GNUPGHOME is missing
       """
 
+  gpg_bin =
+    System.get_env("GNUPGBIN") ||
+      raise """
+      environment variable GNUPGBIN is missing
+      """
+
   config :gpgmex,
-    include_dir: ["/usr/include/x86_64-linux-gnu", "/usr/include"],
-    libs_dir: ["/usr/lib/x86_64-linux-gnu/libgpgme.so"],
-    gpg_home: gpg_home
+    gpg_home: gpg_home,
+    gpg_bin: gpg_bin
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you

@@ -34,6 +34,7 @@ defmodule GenexRemoteWeb.Router do
 
       live "/register", AuthLive.Register, :register
       live "/register/validate", AuthLive.Register, :validate
+      live "/register/success", AuthLive.Register, :success
       live "/login", AuthLive.Login, :login
       live "/login/email", AuthLive.Login, :email
 

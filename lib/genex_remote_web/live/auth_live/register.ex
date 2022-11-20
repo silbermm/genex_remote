@@ -14,7 +14,6 @@ defmodule GenexRemoteWeb.AuthLive.Register do
   """
 
   use GenexRemoteWeb, :live_view
-
   alias GenexRemote.Auth
 
   @impl true
@@ -56,14 +55,13 @@ defmodule GenexRemoteWeb.AuthLive.Register do
 
   @impl true
   def handle_event("submit_proof", %{"account" => params}, socket) do
-    token = Auth.generate_login_token()
-
-    case Auth.submit_challenge(socket.assigns.account, Map.put(params, "login_token", token)) do
+    # token = Auth.generate_login_token()
+    case Auth.submit_challenge(socket.assigns.account, params) do
       {:ok, account} ->
+        Auth.send_magic_link(account.email)
+
         {:noreply,
-         redirect(socket,
-           to: Routes.session_path(socket, :create_from_token, token, account.email)
-         )}
+         push_patch(socket, to: Routes.auth_register_path(socket, :success), replace: true)}
 
       {:error, changeset} ->
         {:noreply,
@@ -78,31 +76,28 @@ defmodule GenexRemoteWeb.AuthLive.Register do
 
     <div>
       <p>
-        An account on Genex requires a GPG public key and the associated email address.
+        An account on Genex requires a GPG public key.
 
         TODO: explain how to create a GPG key
-        We are going to remove the email soon
 
-        Once you add those things, you'll get back an encrypted message that you'll need to decrypt and send back.
+        Once you add your public key, you'll get back an encrypted message that you'll need to decrypt and send back.
         Doing this verifies that you hold the private key for the uploaded public key thus it is in fact you.
+
+        Lastly, you'll get an email to validate you own the email address and then you'll verified account.
       </p>
     </div>
 
-    <%= if @live_action == :register do %>
+    <div :if={@live_action == :register}>
       <.form :let={f} for={@changeset} phx-submit="register">
-        <%= label(f, :email, "Email") %>
-        <%= text_input(f, :email) %>
-        <%= error_tag(f, :email) %>
-
         <%= label(f, :public_key, "Public Key") %>
-        <%= textarea(f, :public_key, placeholder: "Enter your Public Key") %>
+        <%= textarea(f, :public_key, placeholder: "Enter your Public Key", rows: "45", cols: "10") %>
         <%= error_tag(f, :public_key) %>
 
         <%= submit("Register") %>
       </.form>
-    <% end %>
+    </div>
 
-    <%= if @live_action == :validate do %>
+    <div :if={@live_action == :validate}>
       <p>To prove you own this key, decrypt the following message a submit the decrtyped value</p>
       <pre> <%= @account.encrypted_challenge %> </pre>
       <.form :let={f} for={@challenge_changeset} phx-submit="submit_proof">
@@ -112,7 +107,15 @@ defmodule GenexRemoteWeb.AuthLive.Register do
 
         <%= submit("Prove") %>
       </.form>
-    <% end %>
+    </div>
+
+    <div :if={@live_action == :success}>
+      <p>
+        Nice work! Your should now recieve an email at the email address attached to the public key with a link to login
+      </p>
+
+      <p><button>Resend Link</button></p>
+    </div>
     """
   end
 end

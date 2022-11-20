@@ -26,10 +26,6 @@ config :genex_remote, GenexRemoteWeb.Endpoint,
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
   ]
 
-config :gpgmex,
-  include_dir: ["/usr/include/x86_64-linux-gnu", "/usr/include"],
-  libs_dir: ["/usr/lib/x86_64-linux-gnu/libgpgme.so"]
-
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed
