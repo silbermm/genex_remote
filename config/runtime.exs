@@ -76,20 +76,15 @@ if config_env() == :prod do
     secret_key_base: secret_key_base
 
   # ## Configuring the mailer
-  #
-  # In production you need to configure the mailer to use a different adapter.
-  # Also, you may need to configure the Swoosh API client of your choice if you
-  # are not using SMTP. Here is an example of the configuration:
-  #
-  #     config :genex_remote, GenexRemote.Mailer,
-  #       adapter: Swoosh.Adapters.Mailgun,
-  #       api_key: System.get_env("MAILGUN_API_KEY"),
-  #       domain: System.get_env("MAILGUN_DOMAIN")
-  #
-  # For this example you need include a HTTP client required by Swoosh API client.
-  # Swoosh supports Hackney and Finch out of the box:
-  #
-  #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
-  #
-  # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+  # Currently using my personal gmail account.
+  # the token is passed into the mailer at the call site
+  # because it changes often via the
+  # `GenexRemote.Mailer.TokenRefresher` process
+  config :genex_remote, GenexRemote.Mailer,
+    adapter: Swoosh.Adapters.Gmail,
+    access_token: "",
+    client_id: System.get_env("GENEX_GMAIL_CLIENT_ID"),
+    client_secret: System.get_env("GENEX_GMAIL_SECRET")
+
+  config :swoosh, :api_client, Swoosh.ApiClient.Hackney
 end

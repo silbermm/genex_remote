@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e
 
+# Make sure GPG dir exists
+if [ -f /genex_data/gnupg ]; then
+  echo "GPG directory already exists"
+else
+  gpg --update-trustdb
+fi
+
 # Restore the database if it does not already exist.
 if [ -f /genex_data/db/genex.db ]; then
   echo "Database already exists, skipping restore"

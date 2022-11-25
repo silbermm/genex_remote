@@ -25,8 +25,14 @@ ADD https://github.com/benbjohnson/litestream/releases/download/v0.3.9/litestrea
 RUN tar -C /usr/local/bin -xzf /tmp/litestream.tar.gz
 
 # install build dependencies
-RUN apt-get update -y && apt-get install -y build-essential git gpg libgpgme-dev \
+RUN apt-get update -y && apt-get install -y build-essential git gpg libgpgme-dev curl pkg-config \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
+
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+RUN cargo --help
 
 # prepare build dir
 WORKDIR /app
@@ -38,6 +44,7 @@ RUN mix local.hex --force && \
 # set build ENV
 ENV MIX_ENV="prod"
 ENV GNUPGHOME /genex_data/gnupg
+ENV GNUPGBIN /usr/bin/gpg
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
@@ -86,6 +93,7 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 ENV GNUPGHOME /genex_data/gnupg
+ENV GNUPGBIN /usr/bin/gpg
 
 WORKDIR "/app"
 
@@ -98,7 +106,6 @@ RUN gpg --update-trustdb
 
 # set runner ENV
 ENV MIX_ENV="prod"
-
 
 #copy the final release from the build stage
 COPY --from=builder /app/_build/${MIX_ENV}/rel/genex_remote ./

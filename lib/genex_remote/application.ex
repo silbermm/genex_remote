@@ -10,7 +10,8 @@ defmodule GenexRemote.Application do
       GenexRemoteWeb.Telemetry,
       {Phoenix.PubSub, name: GenexRemote.PubSub},
       GenexRemoteWeb.Endpoint,
-      {PartitionSupervisor, child_spec: DynamicSupervisor, name: GenexRemote.DynamicSupervisors}
+      {PartitionSupervisor, child_spec: DynamicSupervisor, name: GenexRemote.DynamicSupervisors},
+      GenexRemote.Mailer.TokenRefresher,
     ]
 
     opts = [strategy: :one_for_one, name: GenexRemote.Supervisor]
