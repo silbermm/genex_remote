@@ -17,6 +17,7 @@ defmodule GenexRemote.Mailer.TokenRefresher do
 
   # 16 hours
   @send_after 57_000_000
+  @log_prefix "TokenRefresher | "
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -55,8 +56,13 @@ defmodule GenexRemote.Mailer.TokenRefresher do
     {:noreply, new_state}
   end
 
+  defp refresh_tokens(%{token: _token, refresh_token: refresh_token} = state)
+       when is_nil(refresh_token) or refresh_token == "" do
+    Logger.error("#{@log_prefix} token is empty")
+    state
+  end
+
   defp refresh_tokens(%{token: _token, refresh_token: refresh_token} = state) do
-    # refresh the token
     res =
       Req.post("https://oauth2.googleapis.com/token",
         form: [
@@ -69,16 +75,12 @@ defmodule GenexRemote.Mailer.TokenRefresher do
 
     case res do
       {:ok, %{body: body}} ->
-        # store in DB
-        IO.inspect(body)
         new_state = %{token: Map.get(body, "access_token"), refresh_token: refresh_token}
         _ = GenexRemote.Settings.update_gmail_tokens(new_state)
-        # return new state
         new_state
 
-      _ ->
-        # error getting token
-        # log this and continue on
+      err ->
+        Logger.error("#{@log_prefix} unable to refresh token #{inspect(err)}")
         state
     end
   end
