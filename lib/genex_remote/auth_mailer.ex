@@ -70,20 +70,29 @@ defmodule GenexRemote.AuthMailer do
   @impl true
   def handle_continue(:send_mail, %{email: email, token: token} = state) do
     Logger.info("#{@log_prefix} send magic link")
-    link = "http://localhost:4000/login/#{token}/email/#{email}"
-    Logger.info("#{@log_prefix} #{link}")
+
+    host = GenexRemoteWeb.Endpoint.url()
+
+    path =
+      GenexRemoteWeb.Router.Helpers.session_path(
+        GenexRemoteWeb.Endpoint,
+        :create_from_token,
+        token,
+        email,
+        []
+      )
+
+    Logger.info("#{@log_prefix} #{host <> path}")
 
     Email.new()
     |> Email.to({email, email})
     |> Email.from({"Genex", "noreply@genex.io"})
     |> Email.subject("Login to your account")
     |> Email.html_body(
-      ~s{<h1>Follow the link to login to your account</h1> <a href="#{link}"> Login </a>}
+      ~s{<h1>Follow the link to login to your account</h1> <a href="#{host <> path}"> Login </a>}
     )
-    |> Email.text_body(
-      "Follow the link to login to your account. http://localhost:4000/login/#{token}/email/#{email} \n"
-    )
-    |> GenexRemote.Mailer.deliver()
+    |> Email.text_body("Follow the link to login to your account. #{host <> path} \n")
+    |> GenexRemote.Mailer.deliver(access_token: GenexRemote.Mailer.TokenRefresher.current_token())
 
     {:stop, :normal, state}
   end
