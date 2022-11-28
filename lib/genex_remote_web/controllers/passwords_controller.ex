@@ -27,11 +27,18 @@ defmodule GenexRemoteWeb.PasswordsController do
     # build a changeset for saving the passwords
     case Passwords.save(account.id, passwords) do
       {:ok, _} ->
+        # track event
+        GenexRemote.Auditor.write_audit_log(conn.assigns.account.id, :synced_passwords)
+
         conn
         |> put_status(201)
         |> json(%{})
 
-      {:error, _} ->
+      {:error, changeset} ->
+        GenexRemote.Auditor.write_audit_log(conn.assigns.account.id, :failed_syncing_passwords, %{
+          errors: changeset.errors
+        })
+
         conn
         |> put_status(400)
         |> json(%{error: "unable to save passwords"})

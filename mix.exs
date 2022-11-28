@@ -49,7 +49,8 @@ defmodule GenexRemote.MixProject do
       {:mail, ">= 0.0.0"},
       {:hackney, "~> 1.18.1"},
       {:req, "~> 0.3.2"},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:tailwind, "~> 0.1.6", runtime: Mix.env() == :dev}
     ]
   end
 
@@ -59,7 +60,7 @@ defmodule GenexRemote.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.deploy": ["esbuild default --minify", "phx.digest"]
+      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
     ]
   end
 end

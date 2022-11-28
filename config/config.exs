@@ -17,6 +17,17 @@ config :genex_remote, GenexRemoteWeb.Endpoint,
   pubsub_server: GenexRemote.PubSub,
   live_view: [signing_salt: "yAYf/aXo"]
 
+config :tailwind,
+  version: "3.2.4",
+  default: [
+    args: ~w(
+      --config=tailwind.config.js
+      --input=css/app.css
+      --output=../priv/static/assets/app.css
+    ),
+    cd: Path.expand("../assets", __DIR__)
+  ]
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
@@ -27,9 +38,8 @@ config :genex_remote, GenexRemoteWeb.Endpoint,
 config :genex_remote, GenexRemote.Mailer, adapter: Swoosh.Adapters.Local
 
 # Swoosh API client is needed for adapters other than SMTP.
-#config :swoosh, :api_client, false
+# config :swoosh, :api_client, false
 config :swoosh, :api_client, Swoosh.ApiClient.Hackney
-
 
 config :gpgmex,
   gpg_home: System.get_env("GNUPGHOME") || "~/.gnupg",

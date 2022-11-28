@@ -8,12 +8,28 @@ defmodule GenexRemote.Auditor do
   alias Ecto.Changeset
   alias GenexRemote.Audits.AuditLog
   alias GenexRemote.Repo
+  alias GenexRemote.PubSub
+
+  import Ecto.Query
 
   require Logger
 
   @log_prefix "[Auditor] | "
 
   ##### Public API
+
+  @doc """
+  Get the last n (defaults to 100) audit logs for the specified account
+  """
+  @spec get_audit_logs_for(String.t(), non_neg_integer()) :: list(AuditLog.t())
+  def get_audit_logs_for(account_id, count \\ 100) do
+    "auditor"
+    |> where([a], a.account_id == ^account_id)
+    |> order_by([a], desc: a.inserted_at)
+    |> limit([_], ^count)
+    |> select([a], %{action: a.action, inserted_at: a.inserted_at, metadata: a.metadata})
+    |> Repo.all()
+  end
 
   def write_audit_log(account_id, action, metadata \\ %{}) do
     params = %{account_id: account_id, action: action, metadata: metadata}
@@ -44,11 +60,15 @@ defmodule GenexRemote.Auditor do
   @impl true
   def handle_continue(:commit, %{changeset: %Changeset{valid?: true} = changeset} = state) do
     case Repo.insert(changeset) do
-      {:ok, _} ->
+      {:ok, log} ->
         Logger.info([
           @log_prefix,
           "Successfully wrote audit log"
         ])
+
+        log.account_id
+        |> PubSub.account_logs()
+        |> GenexRemote.PubSub.broadcast(%{log_added: log})
 
         {:stop, :normal, state}
 

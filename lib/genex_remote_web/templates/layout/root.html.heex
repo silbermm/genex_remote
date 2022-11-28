@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-gray-100">
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -17,25 +17,17 @@
     >
     </script>
   </head>
-  <body>
-    <header>
-      Genex
-    </header>
-    <nav>
-      <%= if assigns[:account] do %>
-        <.link navigate={Routes.profile_index_path(@conn, :index)} class="underline">
-          Profile
-        </.link>
-        <.link navigate={Routes.session_path(@conn, :logout)} class="underline">
-          Logout
-        </.link>
-      <% else %>
-        <.link navigate={Routes.auth_register_path(@conn, :register)} class="underline">
-          Register
-        </.link>
-        <.link navigate={Routes.auth_login_path(@conn, :login)} class="underline">Login</.link>
-      <% end %>
-    </nav>
-    <%= @inner_content %>
+  <body class="h-full">
+    <div class="min-h-full">
+      <div class="bg-gray-100 pb-32">
+        <GenexRemoteWeb.Components.Navigation.header account={assigns[:account]} />
+
+        <main class="mt-12">
+          <div class="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+            <%= @inner_content %>
+          </div>
+        </main>
+      </div>
+    </div>
   </body>
 </html>

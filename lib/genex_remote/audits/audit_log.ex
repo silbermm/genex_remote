@@ -9,7 +9,9 @@ defmodule GenexRemote.Audits.AuditLog do
     :failed_log_in,
     :logged_out,
     :registered,
-    :verified_account
+    :verified_account,
+    :synced_passwords,
+    :failed_syncing_passwords
   ]
 
   @primary_key {:id, :binary_id, autogenerate: true}
