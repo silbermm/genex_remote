@@ -15,6 +15,7 @@ defmodule GenexRemoteWeb.AuthLive.Register do
 
   use GenexRemoteWeb, :live_view
   alias GenexRemote.Auth
+  alias GenexRemoteWeb.Components.AuthLayout
 
   @impl true
   def mount(_params, _session, socket) do
@@ -72,42 +73,34 @@ defmodule GenexRemoteWeb.AuthLive.Register do
   @impl true
   def render(assigns) do
     ~H"""
-    <h1>Register a new account</h1>
+    <.form :let={f} :if={@live_action == :register} for={@changeset} phx-submit="register">
+      <AuthLayout.register form={f}>
+        <:header>
+          <AuthLayout.header title="Register">
+            <:description>
+              <.page_description />
+            </:description>
+          </AuthLayout.header>
+        </:header>
+      </AuthLayout.register>
+    </.form>
 
-    <div>
-      <p>
-        An account on Genex requires a GPG public key.
-
-        TODO: explain how to create a GPG key
-
-        Once you add your public key, you'll get back an encrypted message that you'll need to decrypt and send back.
-        Doing this verifies that you hold the private key for the uploaded public key thus it is in fact you.
-
-        Lastly, you'll get an email to validate you own the email address and then you'll verified account.
-      </p>
-    </div>
-
-    <div :if={@live_action == :register}>
-      <.form :let={f} for={@changeset} phx-submit="register">
-        <%= label(f, :public_key, "Public Key") %>
-        <%= textarea(f, :public_key, placeholder: "Enter your Public Key", rows: "45", cols: "10") %>
-        <%= error_tag(f, :public_key) %>
-
-        <%= submit("Register") %>
-      </.form>
-    </div>
-
-    <div :if={@live_action == :validate}>
-      <p>To prove you own this key, decrypt the following message a submit the decrtyped value</p>
-      <pre> <%= @account.encrypted_challenge %> </pre>
-      <.form :let={f} for={@challenge_changeset} phx-submit="submit_proof">
-        <%= label(f, :challenge, "Decrypted Challenge") %>
-        <%= text_input(f, :challenge) %>
-        <%= error_tag(f, :challenge) %>
-
-        <%= submit("Prove") %>
-      </.form>
-    </div>
+    <.form
+      :let={f}
+      :if={@live_action == :validate}
+      for={@challenge_changeset}
+      phx-submit="submit_proof"
+    >
+      <AuthLayout.register_prove form={f} encrypted_challenge={@account.encrypted_challenge}>
+        <:header>
+          <AuthLayout.header title="Register">
+            <:description>
+              <.page_description />
+            </:description>
+          </AuthLayout.header>
+        </:header>
+      </AuthLayout.register_prove>
+    </.form>
 
     <div :if={@live_action == :success}>
       <p>
@@ -116,6 +109,23 @@ defmodule GenexRemoteWeb.AuthLive.Register do
 
       <p><button>Resend Link</button></p>
     </div>
+    """
+  end
+
+  defp page_description(assigns) do
+    ~H"""
+    <span> An account on Genex requires a GPG public key. </span>
+
+    <span class="block pt-2"> TODO: explain how to create a GPG key </span>
+
+    <span class="block pt-2">
+      Once you add your public key, you'll get back an encrypted message that you'll need to decrypt and send back.
+      Doing this verifies that you hold the private key for the uploaded public key thus it is in fact you.
+    </span>
+
+    <span class="block pt-2">
+      Lastly, you'll get an email to validate you own the email address and then you'll verified account.
+    </span>
     """
   end
 end

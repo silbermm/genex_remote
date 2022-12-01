@@ -2,6 +2,7 @@ defmodule GenexRemoteWeb.AuthLive.Login do
   use GenexRemoteWeb, :live_view
 
   alias GenexRemote.Auth
+  alias GenexRemoteWeb.Components.AuthLayout
 
   defstruct [:email]
 
@@ -29,8 +30,8 @@ defmodule GenexRemoteWeb.AuthLive.Login do
 
         {:noreply,
          socket
-         |> put_flash(:success, "Look for an email")
-         |> push_patch(to: Routes.auth_login_path(socket, :email))}
+         |> put_flash(:success, "Check your email for a login link.")
+         |> assign(changeset: changeset(%{}))}
 
       {:error, changeset} ->
         {:noreply, assign(socket, changeset: changeset)}
@@ -40,32 +41,18 @@ defmodule GenexRemoteWeb.AuthLive.Login do
   @impl true
   def render(assigns) do
     ~H"""
-    <h1>Login</h1>
-
-    <%= if @live_action == :login do %>
-      <div>
-        <p>
-          To login to Genex, just put your registered email address in the field.
-
-          If your email is registered, you'll get an email with a link to login with.
-        </p>
-      </div>
-
-      <.form :let={f} for={@changeset} phx-submit="login">
-        <%= label(f, :email, "Email") %>
-        <%= text_input(f, :email, required: true) %>
-        <%= error_tag(f, :email) %>
-        <%= submit("Login") %>
-      </.form>
-    <% end %>
-
-    <%= if @live_action == :email do %>
-      <div>
-        <p>
-          Check your email for a login link
-        </p>
-      </div>
-    <% end %>
+    <.form :let={f} for={@changeset} phx-submit="login">
+      <AuthLayout.login form={f}>
+        <:header>
+          <AuthLayout.header title="Login">
+            <:description>
+              To login to Genex, just put your registered email address in the field.
+              If your email is registered, you'll get an email with a link to login with.
+            </:description>
+          </AuthLayout.header>
+        </:header>
+      </AuthLayout.login>
+    </.form>
     """
   end
 

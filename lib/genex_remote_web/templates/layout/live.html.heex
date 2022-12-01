@@ -5,6 +5,12 @@
     </p>
   <% end %>
 
+  <%= if live_flash(@flash, :success) do %>
+    <p class="alert alert-success" role="alert" phx-click="lv:clear-flash" phx-value-key="success">
+      <%= live_flash(@flash, :success) %>
+    </p>
+  <% end %>
+
   <%= if live_flash(@flash, :error) do %>
     <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error">
       <%= live_flash(@flash, :error) %>
