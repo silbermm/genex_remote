@@ -86,7 +86,7 @@ defmodule GenexRemote.AuthMailer do
 
     Email.new()
     |> Email.to({email, email})
-    |> Email.from({"Genex", "noreply@genex.io"})
+    |> Email.from({"Genex", "noreply@genex.dev"})
     |> Email.subject("Login to your account")
     |> Email.html_body(
       ~s{<h1>Follow the link to login to your account</h1> <a href="#{host <> path}"> Login </a>}
