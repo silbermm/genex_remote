@@ -8,6 +8,8 @@ defmodule GenexRemoteWeb.AuthLive.Login do
 
   @types %{email: :string}
 
+  on_mount {GenexRemoteWeb.Hooks.AuthenticatedRedirect, :default}
+
   @impl true
   def mount(_params, _session, socket) do
     changeset = changeset(%{})

@@ -98,11 +98,11 @@ defmodule GenexRemote.Auth.Account do
   end
 
   defp validate_public_key(changeset) do
-    public_key = get_change(changeset, :public_key)
+    public_key = get_change(changeset, :public_key) || get_field(changeset, :public_key)
 
     case GPG.key_info(public_key) do
       {:error, e} ->
-        Logger.error("unable to get key info #{inspect(e)}")
+        Logger.error("unable to get key info #{inspect e}")
         add_error(changeset, :public_key, "invalid public key")
 
       %{fingerprint: fp, email: [email | _]} = key ->
@@ -120,7 +120,7 @@ defmodule GenexRemote.Auth.Account do
   end
 
   defp import_key(%Changeset{valid?: true} = changeset) do
-    public_key = get_change(changeset, :public_key)
+    public_key = get_change(changeset, :public_key) || get_field(changeset, :public_key)
 
     case GPG.import_key(public_key) do
       {:ok, _} ->

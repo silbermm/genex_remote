@@ -25,13 +25,6 @@ defmodule GenexRemoteWeb.ProfileLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
-      <h3>Logs</h3>
-      <ul>
-        <li :for={l <- @logs}><%= l.inserted_at %> -- <%= l.action %></li>
-      </ul>
-    </div>
-
     <div class="overflow-hidden bg-white shadow sm:rounded-lg">
       <div class="px-4 py-5 sm:px-6">
         <h3 class="text-lg font-medium leading-6 text-gray-900">Public Key Information</h3>
@@ -56,6 +49,21 @@ defmodule GenexRemoteWeb.ProfileLive.Index do
             </dd>
           </div>
         </dl>
+      </div>
+    </div>
+    <div class="mt-4">
+      <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg font-medium leading-6 text-gray-900">Latest Activity</h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Details of the your latest activity
+          </p>
+        </div>
+        <div class="border-t border-gray-200">
+          <div class="bg-gray-50 px-4 py-5 sm:px-6">
+            <GenexRemoteWeb.Components.Feeds.activity for={@logs} />
+          </div>
+        </div>
       </div>
     </div>
     """

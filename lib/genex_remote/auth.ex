@@ -32,8 +32,33 @@ defmodule GenexRemote.Auth do
         {:ok, account, challenge_changeset}
 
       err ->
-        Logger.error(inspect err)
+        Logger.error(inspect(err))
         err
+    end
+  end
+
+  def build_challenge_changeset(account_id) do
+    now = DateTime.utc_now()
+
+    Account
+    |> where([a], a.id == ^account_id)
+    |> where([a], is_nil(a.validated))
+    |> where([a], a.challenge_expires > ^now)
+    |> Repo.one()
+    |> case do
+      nil ->
+        {:error, "Account not valid, or already registered"}
+
+      account ->
+        changeset =
+          account
+          |> Account.changeset(%{})
+          |> Account.challenge_creation_changeset()
+
+        case Repo.update(changeset) do
+          {:ok, account} -> {:ok, account, Account.challenge_changeset(account, %{})}
+          _ -> {:error, "Unable to build a challenge"}
+        end
     end
   end
 

@@ -81,10 +81,9 @@ if config_env() == :prod do
   # because it changes often via the
   # `GenexRemote.Mailer.TokenRefresher` process
   config :genex_remote, GenexRemote.Mailer,
-    adapter: Swoosh.Adapters.Gmail,
-    access_token: "",
-    client_id: System.get_env("GENEX_GMAIL_CLIENT_ID"),
-    client_secret: System.get_env("GENEX_GMAIL_SECRET")
+    adapter: Swoosh.Adapters.Mailgun,
+    api_key: System.get_env("MAILGUN_API_KEY"),
+    domain: "sandbox3c8518196e0a4218917f224c3a067f02.mailgun.org"
 
   config :swoosh, :api_client, Swoosh.ApiClient.Hackney
 end

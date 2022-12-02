@@ -17,22 +17,45 @@ defmodule GenexRemoteWeb.AuthLive.Register do
   alias GenexRemote.Auth
   alias GenexRemoteWeb.Components.AuthLayout
 
+  on_mount {GenexRemoteWeb.Hooks.AuthenticatedRedirect, :default}
+
   @impl true
+  # if the url param has an account_id, try to build the correct
+  # validation changeset.
+  def mount(%{"account_id" => account_id}, _session, socket) do
+    case Auth.build_challenge_changeset(account_id) do
+      {:ok, account, challenge_changeset} ->
+        {:ok, assign(socket, account: account, challenge_changeset: challenge_changeset)}
+
+      {:error, reason} ->
+        IO.inspect("ERR")
+        {:ok, assign(socket, validate_error: reason)}
+    end
+  end
+
   def mount(_params, _session, socket) do
     account_changeset = Auth.new_blank_account()
     {:ok, assign(socket, changeset: account_changeset)}
   end
 
   @impl true
-  def handle_params(_parms, _, socket) do
+  def handle_params(_, _, socket) do
     if socket.assigns.live_action == :validate do
-      if Map.has_key?(socket.assigns, :account) do
+      if Map.has_key?(socket.assigns, :account) && !is_nil(socket.assigns.account) do
         {:noreply, socket}
       else
-        {:noreply,
-         socket
-         |> put_flash(:info, "enter the following info before validating")
-         |> push_patch(to: Routes.auth_register_path(socket, :register))}
+        if Map.has_key?(socket.assigns, :validate_error) do
+          {:noreply,
+           socket
+           |> put_flash(:error, socket.assigns.validate_error)
+           |> assign(changeset: Auth.new_blank_account())
+           |> push_patch(to: Routes.auth_register_path(socket, :register))}
+        else
+          {:noreply,
+           socket
+           |> put_flash(:info, "enter the following info before validating")
+           |> push_patch(to: Routes.auth_register_path(socket, :register))}
+        end
       end
     else
       {:noreply, socket}
@@ -46,7 +69,10 @@ defmodule GenexRemoteWeb.AuthLive.Register do
         {:noreply,
          socket
          |> assign(account: account, challenge_changeset: challenge_changeset)
-         |> push_patch(to: Routes.auth_register_path(socket, :validate), replace: true)}
+         |> push_patch(
+           to: Routes.auth_register_path(socket, :validate, account_id: account.id),
+           replace: true
+         )}
 
       {:error, changeset} ->
         {:noreply,
@@ -73,42 +99,44 @@ defmodule GenexRemoteWeb.AuthLive.Register do
   @impl true
   def render(assigns) do
     ~H"""
-    <.form :let={f} :if={@live_action == :register} for={@changeset} phx-submit="register">
-      <AuthLayout.register form={f}>
-        <:header>
-          <AuthLayout.header title="Register">
-            <:description>
-              <.page_description />
-            </:description>
-          </AuthLayout.header>
-        </:header>
-      </AuthLayout.register>
-    </.form>
+    <%= unless Map.has_key?(@socket, :validate_error) do %>
+      <.form :let={f} :if={@live_action == :register} for={@changeset} phx-submit="register">
+        <AuthLayout.register form={f}>
+          <:header>
+            <AuthLayout.header title="Register">
+              <:description>
+                <.page_description />
+              </:description>
+            </AuthLayout.header>
+          </:header>
+        </AuthLayout.register>
+      </.form>
 
-    <.form
-      :let={f}
-      :if={@live_action == :validate}
-      for={@challenge_changeset}
-      phx-submit="submit_proof"
-    >
-      <AuthLayout.register_prove form={f} encrypted_challenge={@account.encrypted_challenge}>
-        <:header>
-          <AuthLayout.header title="Register">
-            <:description>
-              <.page_description />
-            </:description>
-          </AuthLayout.header>
-        </:header>
-      </AuthLayout.register_prove>
-    </.form>
+      <.form
+        :let={f}
+        :if={@live_action == :validate}
+        for={@challenge_changeset}
+        phx-submit="submit_proof"
+      >
+        <AuthLayout.register_prove form={f} encrypted_challenge={@account.encrypted_challenge}>
+          <:header>
+            <AuthLayout.header title="Register">
+              <:description>
+                <.page_description />
+              </:description>
+            </AuthLayout.header>
+          </:header>
+        </AuthLayout.register_prove>
+      </.form>
 
-    <div :if={@live_action == :success}>
-      <p>
-        Nice work! Your should now recieve an email at the email address attached to the public key with a link to login
-      </p>
+      <div :if={@live_action == :success}>
+        <p>
+          Nice work! Your should now recieve an email at the email address attached to the public key with a link to login
+        </p>
 
-      <p><button>Resend Link</button></p>
-    </div>
+        <p><button>Resend Link</button></p>
+      </div>
+    <% end %>
     """
   end
 

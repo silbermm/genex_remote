@@ -92,7 +92,7 @@ defmodule GenexRemote.AuthMailer do
       ~s{<h1>Follow the link to login to your account</h1> <a href="#{host <> path}"> Login </a>}
     )
     |> Email.text_body("Follow the link to login to your account. #{host <> path} \n")
-    |> GenexRemote.Mailer.deliver(access_token: GenexRemote.Mailer.TokenRefresher.current_token())
+    |> GenexRemote.Mailer.deliver!()
 
     {:stop, :normal, state}
   end
