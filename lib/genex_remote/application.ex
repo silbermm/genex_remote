@@ -5,6 +5,8 @@ defmodule GenexRemote.Application do
 
   @impl true
   def start(_type, _args) do
+    GenexRemote.Instrumenter.setup()
+
     children = [
       GenexRemote.Repo,
       GenexRemoteWeb.Telemetry,

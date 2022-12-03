@@ -17,7 +17,10 @@ defmodule GenexRemoteWeb.SessionControllerTest do
     end
 
     test "writes audit log", %{conn: conn, account: account, token: token, email: email} do
-      get(conn, "/login/#{token}/email/#{email}")
+      conn = get(conn, "/login/#{token}/email/#{email}")
+
+      assert redirected_to(conn) == Routes.home_index_path(conn, :index)
+      assert get_flash(conn) == %{"info" => "Welcome back"}
 
       audit_log =
         Repo.get_by(GenexRemote.Audits.AuditLog, account_id: account.id, action: :logged_in)
@@ -50,6 +53,7 @@ defmodule GenexRemoteWeb.SessionControllerTest do
 
     {:ok, account} =
       %Account{}
+      |> Ecto.Changeset.cast(%{email: email}, [:email])
       |> Account.token_changeset(%{
         email: email,
         public_key: "1234",

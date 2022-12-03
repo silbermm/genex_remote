@@ -25,14 +25,25 @@ defmodule GenexRemote.Auth do
 
     case Repo.insert(changeset) do
       {:ok, account} ->
-        GenexRemote.Auditor.write_audit_log(account.id, :registered)
+        # TODO: capture IP address
+        :telemetry.execute(
+          [:auth, :registration, :success],
+          %{account: 1},
+          %{account: account}
+        )
+
         # return the account and a challenge changeset
         challenge_changeset = Account.challenge_changeset(account, %{})
 
         {:ok, account, challenge_changeset}
 
       err ->
-        Logger.error(inspect(err))
+        :telemetry.execute(
+          [:auth, :registration, :fail],
+          %{account: 0},
+          %{error: err, changeset: changeset}
+        )
+
         err
     end
   end
@@ -62,8 +73,11 @@ defmodule GenexRemote.Auth do
     end
   end
 
-  @spec get_account(String.t()) :: Account.t()
+  @spec get_account(String.t()) :: Account.t() | nil
   def get_account(account_id), do: Repo.get(Account, account_id)
+
+  @spec get_verified_account_by_email(String.t()) :: Account.t() | nil
+  def get_account_by_email(email), do: Repo.get_by(Account, email: email)
 
   @spec submit_challenge(Account.t(), map()) :: {:ok, Account.t()} | {:error, Changeset.t()}
   def submit_challenge(account, params) do
@@ -122,10 +136,18 @@ defmodule GenexRemote.Auth do
         |> Repo.update()
         |> case do
           {:ok, account} ->
-            GenexRemote.Auditor.write_audit_log(account.id, :api_login_challenge_created)
+            :telemetry.execute([:auth, :api_login_challenge, :generated], %{}, %{
+              account: account
+            })
+
             {:ok, account.encrypted_challenge}
 
           err ->
+            :telemetry.execute([:auth, :api_login_challenge, :failed], %{}, %{
+              email: email,
+              err: err
+            })
+
             err
         end
     end

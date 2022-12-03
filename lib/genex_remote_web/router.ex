@@ -25,6 +25,7 @@ defmodule GenexRemoteWeb.Router do
       pipe_through :browser
 
       live "/", ProfileLive.Index, :index
+      live "/logs", ProfileLive.Index, :logs
     end
   end
 

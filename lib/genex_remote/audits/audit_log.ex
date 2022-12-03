@@ -4,6 +4,7 @@ defmodule GenexRemote.Audits.AuditLog do
 
   @audit_actions [
     :api_login_challenge_created,
+    :api_login_challenge_failed,
     :api_logged_in,
     :logged_in,
     :failed_log_in,

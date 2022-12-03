@@ -9,7 +9,12 @@ defmodule GenexRemoteWeb.SessionController do
     case Auth.authenticate_by_email_token(email, token) do
       {:ok, account} ->
         token = GenexRemoteWeb.Tokens.sign_auth_token(account.id)
-        GenexRemote.Auditor.write_audit_log(account.id, :logged_in)
+
+        :telemetry.execute(
+          [:session, :login, :email],
+          %{success: true},
+          %{email: email, account: account, ip: conn.remote_ip}
+        )
 
         conn
         |> put_session(:auth_token, token)
@@ -19,6 +24,13 @@ defmodule GenexRemoteWeb.SessionController do
 
       {:error, reason} ->
         Logger.error("#{inspect(reason)}")
+        # TODO: write audit log
+
+        :telemetry.execute(
+          [:session, :login, :email],
+          %{success: false},
+          %{email: email, ip: conn.remote_ip}
+        )
 
         conn
         |> put_flash(:error, "Invalid login")
