@@ -76,7 +76,7 @@ defmodule GenexRemote.Auth do
   @spec get_account(String.t()) :: Account.t() | nil
   def get_account(account_id), do: Repo.get(Account, account_id)
 
-  @spec get_verified_account_by_email(String.t()) :: Account.t() | nil
+  @spec get_account_by_email(String.t()) :: Account.t() | nil
   def get_account_by_email(email), do: Repo.get_by(Account, email: email)
 
   @spec submit_challenge(Account.t(), map()) :: {:ok, Account.t()} | {:error, Changeset.t()}

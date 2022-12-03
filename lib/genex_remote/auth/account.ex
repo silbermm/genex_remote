@@ -123,7 +123,7 @@ defmodule GenexRemote.Auth.Account do
     public_key = get_change(changeset, :public_key) || get_field(changeset, :public_key)
 
     case GPG.import_key(public_key) do
-      {:ok, _} ->
+      :ok ->
         Logger.info("imported key")
         changeset
 

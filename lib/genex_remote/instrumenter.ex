@@ -107,6 +107,6 @@ defmodule GenexRemote.Instrumenter do
   defp format_ip_address(%{ip: {first, second, third, fourth}} = map),
     do: Map.put(map, :ip, "#{first}.#{second}.#{third}.#{fourth}")
 
-  defp format_ip_address(%{ip: _} = map), do: Map.drop(map, :ip)
+  defp format_ip_address(%{ip: _} = map), do: Map.drop(map, [:ip])
   defp format_ip_address(map), do: map
 end

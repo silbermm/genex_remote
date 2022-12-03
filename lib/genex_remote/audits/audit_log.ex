@@ -2,6 +2,8 @@ defmodule GenexRemote.Audits.AuditLog do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %{}
+
   @audit_actions [
     :api_login_challenge_created,
     :api_login_challenge_failed,
