@@ -34,12 +34,31 @@ defmodule GenexRemote.Auth.Account do
     |> validate_required([:public_key])
   end
 
+  def all_changeset(account, attrs) do
+    account
+    |> cast(attrs, [
+      :id,
+      :email,
+      :public_key,
+      :fingerprint,
+      :validated,
+      :encrypted_challenge,
+      :challenge_expires,
+      :challenge_hash,
+      :login_token,
+      :updated_at,
+      :inserted_at
+    ])
+    |> validate_required([:public_key])
+  end
+
   def challenge_changeset(account, attrs) do
     account
     |> cast(attrs, [:challenge])
     |> validate_required([:challenge])
     |> validate_challenge()
     |> hash_login_token()
+    |> IO.inspect(label: "AAAAAAAAAAAAAAAAAAA")
   end
 
   def token_changeset(account, attrs) do
@@ -82,7 +101,7 @@ defmodule GenexRemote.Auth.Account do
     put_change(changeset, :login_token, hash_pwd_salt(token))
   end
 
-  defp hash_login_token(%{valid?: true} = cset), do: put_change(cset, :login_token, nil)
+  defp hash_login_token(%{valid?: true} = changeset), do: put_change(changeset, :login_token, nil)
 
   @doc """
   Import the public key, create a new challenge
@@ -102,7 +121,7 @@ defmodule GenexRemote.Auth.Account do
 
     case GPG.key_info(public_key) do
       {:error, e} ->
-        Logger.error("unable to get key info #{inspect e}")
+        Logger.error("unable to get key info #{inspect(e)}")
         add_error(changeset, :public_key, "invalid public key")
 
       %{fingerprint: fp, email: [email | _]} = key ->
@@ -123,7 +142,7 @@ defmodule GenexRemote.Auth.Account do
     public_key = get_change(changeset, :public_key) || get_field(changeset, :public_key)
 
     case GPG.import_key(public_key) do
-      :ok ->
+      {:ok, _} ->
         Logger.info("imported key")
         changeset
 

@@ -25,6 +25,7 @@ defmodule GenexRemote.Auth do
 
     case Repo.insert(changeset) do
       {:ok, account} ->
+        _ = Repo.replicate(account, :insert)
         # TODO: capture IP address
         :telemetry.execute(
           [:auth, :registration, :success],
@@ -61,14 +62,20 @@ defmodule GenexRemote.Auth do
         {:error, "Account not valid, or already registered"}
 
       account ->
-        changeset =
-          account
-          |> Account.changeset(%{})
-          |> Account.challenge_creation_changeset()
+        account
+        |> Account.changeset(%{})
+        |> Account.challenge_creation_changeset()
+        |> Repo.update()
+        |> case do
+          {:ok, updated_account} ->
+            updated_account
+            |> Account.all_changeset(%{})
+            |> Repo.replicate(:update)
 
-        case Repo.update(changeset) do
-          {:ok, account} -> {:ok, account, Account.challenge_changeset(account, %{})}
-          _ -> {:error, "Unable to build a challenge"}
+            {:ok, updated_account, Account.challenge_changeset(updated_account, %{})}
+
+          _ ->
+            {:error, "Unable to build a challenge"}
         end
     end
   end
@@ -82,7 +89,20 @@ defmodule GenexRemote.Auth do
   @spec submit_challenge(Account.t(), map()) :: {:ok, Account.t()} | {:error, Changeset.t()}
   def submit_challenge(account, params) do
     challenge_changeset = Account.challenge_changeset(account, params)
-    Repo.update(challenge_changeset)
+
+    challenge_changeset
+    |> Repo.update()
+    |> case do
+      {:ok, account} ->
+        account
+        |> Account.all_changeset(%{})
+        |> Repo.replicate(:update)
+
+        {:ok, account}
+
+      err ->
+        err
+    end
   end
 
   @spec send_magic_link(String.t()) :: :ok
@@ -136,6 +156,10 @@ defmodule GenexRemote.Auth do
         |> Repo.update()
         |> case do
           {:ok, account} ->
+            account
+            |> Account.all_changeset(%{})
+            |> Repo.replicate(:update)
+
             :telemetry.execute([:auth, :api_login_challenge, :generated], %{}, %{
               account: account
             })
@@ -163,6 +187,17 @@ defmodule GenexRemote.Auth do
         account
         |> Account.challenge_changeset(%{challenge: response, login_token: nil})
         |> Repo.update()
+        |> case do
+          {:ok, account} ->
+            account
+            |> Account.all_changeset(%{})
+            |> Repo.replicate(:update)
+
+            {:ok, account}
+
+          err ->
+            err
+        end
     end
   end
 
@@ -183,5 +218,16 @@ defmodule GenexRemote.Auth do
     account
     |> Account.token_changeset(%{login_token: token})
     |> Repo.update()
+    |> case do
+      {:ok, account} ->
+        account
+        |> Account.all_changeset(%{})
+        |> Repo.replicate(:update)
+
+        {:ok, account}
+
+      err ->
+        err
+    end
   end
 end

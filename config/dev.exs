@@ -2,7 +2,9 @@ import Config
 
 # Configure your database
 config :genex_remote, GenexRemote.Repo,
-  database: Path.expand("../genex_remote_dev.db", Path.dirname(__ENV__.file)),
+  database:
+    System.get_env("DATABASE_PATH") ||
+      Path.expand("../genex_remote_dev.db", Path.dirname(__ENV__.file)),
   pool_size: 5,
   stacktrace: true,
   show_sensitive_data_on_connection_error: true
@@ -16,7 +18,7 @@ config :genex_remote, GenexRemote.Repo,
 config :genex_remote, GenexRemoteWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {127, 0, 0, 1}, port: 4000],
+  http: [ip: {127, 0, 0, 1}, port: System.get_env("PORT") || "4000" |> String.to_integer()],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
@@ -26,6 +28,20 @@ config :genex_remote, GenexRemoteWeb.Endpoint,
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
+
+config :libcluster,
+  topologies: [
+    local: [
+      strategy: Cluster.Strategy.Epmd,
+      config: [
+        hosts: [
+          :a@silberthru,
+          :b@silberthru
+        ]
+      ]
+    ]
+  ],
+  debug: true
 
 # ## SSL Support
 #

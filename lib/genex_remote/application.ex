@@ -7,12 +7,16 @@ defmodule GenexRemote.Application do
   def start(_type, _args) do
     GenexRemote.Instrumenter.setup()
 
+    topologies = Application.get_env(:libcluster, :topologies) 
+
     children = [
       GenexRemote.Repo,
       GenexRemoteWeb.Telemetry,
       {Phoenix.PubSub, name: GenexRemote.PubSub},
       GenexRemoteWeb.Endpoint,
-      {PartitionSupervisor, child_spec: DynamicSupervisor, name: GenexRemote.DynamicSupervisors}
+      {PartitionSupervisor, child_spec: DynamicSupervisor, name: GenexRemote.DynamicSupervisors},
+      {Cluster.Supervisor, [topologies, [name: GenexRemote.ClusterSupervisor]]},
+      {GenexRemote.RepoReplication, []}
     ]
 
     opts = [strategy: :one_for_one, name: GenexRemote.Supervisor]
