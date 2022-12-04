@@ -7,7 +7,7 @@ defmodule GenexRemote.Application do
   def start(_type, _args) do
     GenexRemote.Instrumenter.setup()
 
-    topologies = Application.get_env(:libcluster, :topologies) 
+    topologies = Application.get_env(:libcluster, :topologies)
 
     children = [
       GenexRemote.Repo,

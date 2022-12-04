@@ -5,6 +5,7 @@ set -e
 if [ -f /genex_data/gnupg ]; then
   echo "GPG directory already exists"
 else
+  mkdir -p /genex_data/gnupg
   gpg --update-trustdb
 fi
 
