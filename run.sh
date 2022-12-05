@@ -20,5 +20,8 @@ fi
 # Run migrations
 /app/bin/migrate
 
+# Import all gpg keys
+
+
 # Run litestream with your app as the subprocess.
 exec litestream replicate -exec "/app/bin/server"
