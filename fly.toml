@@ -13,6 +13,10 @@ processes = []
   allowed_public_ports = []
   auto_rollback = true
 
+[metrics]
+  port = 4000
+  path = "/metrics"
+
 [mounts]
   destination = "/genex_data"
   source = "genex_data"

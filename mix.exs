@@ -49,6 +49,7 @@ defmodule GenexRemote.MixProject do
       {:hackney, "~> 1.18.1"},
       {:libcluster, "~> 3.3.1"},
       {:req, "~> 0.3.2"},
+      {:prom_ex, "~> 1.7"},
       {:heroicons, "~> 0.5.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:tailwind, "~> 0.1.6", runtime: Mix.env() == :dev}

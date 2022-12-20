@@ -12,6 +12,7 @@ defmodule GenexRemote.Application do
     children = [
       GenexRemote.Repo,
       GenexRemoteWeb.Telemetry,
+      GenexRemote.PromEx,
       {Phoenix.PubSub, name: GenexRemote.PubSub},
       GenexRemoteWeb.Endpoint,
       {PartitionSupervisor, child_spec: DynamicSupervisor, name: GenexRemote.DynamicSupervisors},

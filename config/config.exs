@@ -28,6 +28,13 @@ config :tailwind,
     cd: Path.expand("../assets", __DIR__)
   ]
 
+config :genex_remote, GenexRemote.PromEx,
+  disabled: false,
+  manual_metrics_start_delay: :no_delay,
+  drop_metrics_groups: [],
+  grafana: :disabled,
+  metrics_server: :disabled
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
