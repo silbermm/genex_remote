@@ -45,7 +45,7 @@ defmodule GenexRemoteWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {GenexRemoteWeb.LayoutView, "live.html"}
+        layout: {GenexRemoteWeb.LayoutView, :live}
 
       unquote(view_helpers())
     end

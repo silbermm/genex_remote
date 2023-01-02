@@ -68,21 +68,24 @@ defmodule GenexRemoteWeb.Components.Feeds do
   attr :timestamp, :any, required: true
 
   defp show_datetime(assigns) do
+    assigns = assign(assigns, :formatted_timestamp, format_timestamp(assigns.timestamp))
+
+    ~H"""
+    <time datetime={@formatted_timestamp}><%= @formatted_timestamp %></time>
+    """
+  end
+
+  defp format_timestamp(timestamp) do
     timestamp =
-      case assigns.timestamp do
+      case timestamp do
         %NaiveDateTime{} = dt -> NaiveDateTime.to_string(dt)
         dt -> dt
       end
 
-    timestamp =
-      case DateTime.from_iso8601(timestamp <> "Z") do
-        {:ok, dt, _} -> Calendar.strftime(dt, "%b %d %Y %H:%M:%S")
-        _ -> "Invalid date"
-      end
-
-    ~H"""
-    <time datetime={@timestamp}><%= timestamp %></time>
-    """
+    case DateTime.from_iso8601(timestamp <> "Z") do
+      {:ok, dt, _} -> Calendar.strftime(dt, "%b %d %Y %H:%M:%S")
+      _ -> "Invalid date"
+    end
   end
 
   defp show_icon(assigns) do
