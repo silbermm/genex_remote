@@ -2,6 +2,7 @@ defmodule GenexRemoteWeb.SessionController do
   use GenexRemoteWeb, :controller
 
   alias GenexRemote.Auth
+  alias GenexRemote.Metrics
 
   require Logger
 
@@ -9,12 +10,7 @@ defmodule GenexRemoteWeb.SessionController do
     case Auth.authenticate_by_email_token(email, token) do
       {:ok, account} ->
         token = GenexRemoteWeb.Tokens.sign_auth_token(account.id)
-
-        :telemetry.execute(
-          [:session, :login, :email],
-          %{success: true},
-          %{email: email, account: account, ip: conn.remote_ip}
-        )
+        Metrics.emit_login_event(email, account.id)
 
         conn
         |> put_session(:auth_token, token)
@@ -24,13 +20,7 @@ defmodule GenexRemoteWeb.SessionController do
 
       {:error, reason} ->
         Logger.error("#{inspect(reason)}")
-        # TODO: write audit log
-
-        :telemetry.execute(
-          [:session, :login, :email],
-          %{success: false},
-          %{email: email, ip: conn.remote_ip}
-        )
+        Metrics.emit_login_failed(email)
 
         conn
         |> put_flash(:error, "Invalid login")

@@ -79,11 +79,18 @@ RUN mix release
 # Fetch the LiteFS binary using a multi-stage build.
 FROM flyio/litefs:0.2 AS litefs
 
+
+FROM alpine:latest as tailscale
+WORKDIR /app
+ENV TSFILE=tailscale_1.34.1_amd64.tgz
+RUN wget https://pkgs.tailscale.com/stable/${TSFILE} && \
+  tar xzf ${TSFILE} --strip-components=1
+
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
 
-RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales gpg libgpgme-dev bash curl fuse sqlite3 \
+RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales gpg libgpgme-dev bash curl fuse sqlite3 iptables \
   && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Set the locale
@@ -94,6 +101,7 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 ENV GNUPGHOME /genex_data/gnupg
 ENV GNUPGBIN /usr/bin/gpg
+
 
 WORKDIR "/app"
 
@@ -111,6 +119,10 @@ ENV MIX_ENV="prod"
 COPY --from=builder /app/_build/${MIX_ENV}/rel/genex_remote ./
 COPY --from=builder /usr/local/bin/litestream /usr/local/bin/litestream
 COPY litestream.yml /etc/litestream.yml
+
+COPY --from=tailscale /app/tailscaled /app/tailscaled
+COPY --from=tailscale /app/tailscale /app/tailscale
+RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 
 COPY run.sh /scripts/run.sh
 RUN chmod 777 /scripts/run.sh

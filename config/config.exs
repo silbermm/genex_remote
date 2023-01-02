@@ -29,11 +29,12 @@ config :tailwind,
   ]
 
 config :genex_remote, GenexRemote.PromEx,
-  disabled: false,
-  manual_metrics_start_delay: :no_delay,
-  drop_metrics_groups: [],
-  grafana: :disabled,
-  metrics_server: :disabled
+  metrics_server: [
+    port: 9091,
+    path: "/metrics",
+    protocol: :http,
+    pool_size: 5
+  ]
 
 # Configures the mailer
 #

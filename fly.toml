@@ -14,7 +14,7 @@ processes = []
   auto_rollback = true
 
 [metrics]
-  port = 4000
+  port = 9091
   path = "/metrics"
 
 [mounts]

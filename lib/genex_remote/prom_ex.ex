@@ -59,18 +59,17 @@ defmodule GenexRemote.PromEx do
   @impl true
   def plugins do
     [
-      # PromEx built in plugins
       Plugins.Application,
-      Plugins.Beam
-      # {Plugins.Phoenix, router: GenexRemoteWeb.Router, endpoint: GenexRemoteWeb.Endpoint},
+      Plugins.Beam,
+      {Plugins.Phoenix, router: GenexRemoteWeb.Router, endpoint: GenexRemoteWeb.Endpoint},
+      Plugins.PhoenixLiveView,
       # Plugins.Ecto,
       # Plugins.Oban,
-      # Plugins.PhoenixLiveView,
       # Plugins.Absinthe,
       # Plugins.Broadway,
 
       # Add your own PromEx metrics plugins
-      # GenexRemote.Users.PromExPlugin
+      GenexRemote.Metrics.EventMetrics
     ]
   end
 
