@@ -5,3 +5,4 @@ dbs:
   - path: /genex_data/db/genex.db
     replicas:
       - url: ${REPLICA_URL}
+        skip-verify: false
