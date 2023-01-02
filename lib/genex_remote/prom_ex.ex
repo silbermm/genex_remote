@@ -12,7 +12,6 @@ defmodule GenexRemote.PromEx do
     [
       Plugins.Application,
       Plugins.Beam,
-      {Plugins.Phoenix, router: GenexRemoteWeb.Router, endpoint: GenexRemoteWeb.Endpoint},
       Plugins.PhoenixLiveView,
       # Plugins.Ecto,
       # Plugins.Oban,
