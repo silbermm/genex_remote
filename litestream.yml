@@ -1,8 +1,10 @@
-access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
-secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}
-
 dbs:
   - path: /genex_data/db/genex.db
     replicas:
-      - url: ${REPLICA_URL}
+      - type: s3
+        bucket: genex
+        path: db
+        endpoint: ${REPLICA_URL}
         skip-verify: false
+        access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
+        secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}
