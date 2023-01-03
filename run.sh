@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# connect to my tailnet
+/app/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock &
+/app/tailscale up --authkey=${TAILSCALE_AUTHKEY} --hostname=genex-remote-service
+
 # Make sure GPG dir exists
 if [ -f /genex_data/gnupg ]; then
   echo "GPG directory already exists"
@@ -19,10 +23,6 @@ fi
 
 # Run migrations
 /app/bin/migrate
-
-# connect to my tailnet
-/app/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock &
-/app/tailscale up --authkey=${TAILSCALE_AUTHKEY} --hostname=genex-remote-service
 
 # Import all gpg keys
 
