@@ -29,9 +29,7 @@ RUN apt-get update -y && apt-get install -y build-essential git gpg libgpgme-dev
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
-
 ENV PATH="/root/.cargo/bin:${PATH}"
-
 RUN cargo --help
 
 # prepare build dir
@@ -58,9 +56,7 @@ COPY config/config.exs config/${MIX_ENV}.exs config/
 RUN mix deps.compile
 
 COPY priv priv
-
 COPY lib lib
-
 COPY assets assets
 
 # compile assets
@@ -128,10 +124,6 @@ COPY run.sh /scripts/run.sh
 RUN chmod 777 /scripts/run.sh
 
 CMD ["/scripts/run.sh"]
-
-# Appended by flyctl
-ENV ECTO_IPV6 true
-ENV ERL_AFLAGS "-proto_dist inet6_tcp"
 
 # Appended by flyctl
 ENV ECTO_IPV6 true
