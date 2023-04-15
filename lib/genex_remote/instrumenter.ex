@@ -1,13 +1,14 @@
 defmodule GenexRemote.Instrumenter do
   @moduledoc """
-
+  Handle the telemetry events from the system
   """
   alias GenexRemote.Auth.Account
   require Logger
 
   def setup do
     events = [
-      [:session, :login, :email],
+      [:auth, :login, :success],
+      [:auth, :login, :fail],
       [:auth, :registration, :success],
       [:auth, :registration, :fail],
       [:auth, :api_login_challenge, :generated],
@@ -23,25 +24,20 @@ defmodule GenexRemote.Instrumenter do
   end
 
   def handle_event(
-        [:session, :login, :email],
-        %{success: true},
-        %{account: account} = metadata,
+        [:auth, :login, :success],
+        _extra,
+        %{account_id: account_id} = metadata,
         _config
       ) do
     metadata =
       metadata
-      |> Map.drop([:email, :account])
+      |> Map.drop([:email, :account_id])
       |> format_ip_address()
 
-    GenexRemote.Auditor.write_audit_log(account.id, :logged_in, metadata)
+    GenexRemote.Auditor.write_audit_log(account_id, :logged_in, metadata)
   end
 
-  def handle_event(
-        [:session, :login, :email],
-        %{success: false},
-        %{email: email} = metadata,
-        _config
-      ) do
+  def handle_event([:auth, :login, :fail], _, %{email: email} = metadata, _) do
     # get account by email (if it exists)
     case GenexRemote.Auth.get_account_by_email(email) do
       nil ->
@@ -53,7 +49,6 @@ defmodule GenexRemote.Instrumenter do
           |> Map.drop([:email, :account])
           |> format_ip_address()
 
-        Logger.info("metadata #{inspect(metadata)}")
         GenexRemote.Auditor.write_audit_log(acct.id, :failed_log_in, metadata)
     end
   end
@@ -69,7 +64,7 @@ defmodule GenexRemote.Instrumenter do
   end
 
   def handle_event(
-        [:auth, :registration, :success],
+        [:auth, :registration, :fail],
         %{account: 0},
         %{error: err} = _metadata,
         _config

@@ -66,8 +66,6 @@ defmodule GenexRemote.Auditor do
           "Successfully wrote audit log"
         ])
 
-        Repo.replicate(Repo.preload(log, [:account]), :insert)
-
         log.account_id
         |> PubSub.account_logs()
         |> GenexRemote.PubSub.broadcast(%{log_added: log})

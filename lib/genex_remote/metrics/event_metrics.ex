@@ -14,7 +14,6 @@ defmodule GenexRemote.Metrics.EventMetrics do
   def event_metrics(_opts) do
     [
       auth_metrics(),
-      audit_metrics()
     ]
   end
 
@@ -40,18 +39,18 @@ defmodule GenexRemote.Metrics.EventMetrics do
     )
   end
 
-  defp audit_metrics() do
-    Event.build(
-      :audit,
-      [
-        counter(
-          @audit_prefix,
-          event_name: @audit_prefix,
-          measurment: :total,
-          description: "Latest event for an email",
-          tags: [:email, :event]
-        )
-      ]
-    )
-  end
+#   defp audit_metrics() do
+#     Event.build(
+#       :audit,
+#       [
+#         counter(
+#           @audit_prefix,
+#           event_name: @audit_prefix,
+#           measurment: :total,
+#           description: "Latest event for an email",
+#           tags: [:email, :event]
+#         )
+#       ]
+#     )
+#   end
 end

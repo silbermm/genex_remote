@@ -6,17 +6,11 @@ defmodule GenexRemote.Metrics do
   @doc """
   Emits a login event and an audit event
   """
-  def emit_login_event(email, account_id) do
+  def emit_login_success(email, account_id) do
     :telemetry.execute(
       [:auth, :login, :success],
       %{total: 1},
       %{email: email, account_id: account_id, ip: ""}
-    )
-
-    :telemetry.execute(
-      [:audit, :event],
-      %{total: 1},
-      %{email: email, event: :login}
     )
   end
 
@@ -26,11 +20,35 @@ defmodule GenexRemote.Metrics do
       %{total: 1},
       %{email: email, ip: ""}
     )
+  end
 
+  def emit_registration_success(account) do
+    # TODO: capture IP address
     :telemetry.execute(
-      [:audit, :event],
-      %{total: 1},
-      %{email: email, event: :login_failed}
+      [:auth, :registration, :success],
+      %{account: 1},
+      %{account: account}
     )
+  end
+
+  def emit_registration_failed(params, error) do
+    :telemetry.execute(
+      [:auth, :registration, :fail],
+      %{account: 0},
+      %{error: error, params: params}
+    )
+  end
+
+  def emit_login_challenge_created(account) do
+    :telemetry.execute([:auth, :api_login_challenge, :generated], %{}, %{
+      account: account
+    })
+  end
+
+  def emit_login_challenge_failed(email, error) do
+    :telemetry.execute([:auth, :api_login_challenge, :failed], %{}, %{
+      email: email,
+      error: error
+    })
   end
 end

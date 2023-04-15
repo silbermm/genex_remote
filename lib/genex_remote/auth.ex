@@ -6,6 +6,7 @@ defmodule GenexRemote.Auth do
   import Argon2
   import Ecto.Query
 
+  alias GenexRemote.Metrics
   alias GenexRemote.Auth.Account
   alias GenexRemote.Repo
   alias Ecto.Changeset
@@ -25,27 +26,16 @@ defmodule GenexRemote.Auth do
 
     case Repo.insert(changeset) do
       {:ok, account} ->
-        _ = Repo.replicate(account, :insert)
-        # TODO: capture IP address
-        :telemetry.execute(
-          [:auth, :registration, :success],
-          %{account: 1},
-          %{account: account}
-        )
+        Metrics.emit_registration_success(account)
 
         # return the account and a challenge changeset
         challenge_changeset = Account.challenge_changeset(account, %{})
 
         {:ok, account, challenge_changeset}
 
-      err ->
-        :telemetry.execute(
-          [:auth, :registration, :fail],
-          %{account: 0},
-          %{error: err, changeset: changeset}
-        )
-
-        err
+      {:error, changeset} ->
+        Metrics.emit_registration_failed(changes, changeset.errors)
+        {:error, changeset}
     end
   end
 
@@ -68,10 +58,6 @@ defmodule GenexRemote.Auth do
         |> Repo.update()
         |> case do
           {:ok, updated_account} ->
-            updated_account
-            |> Account.all_changeset(%{})
-            |> Repo.replicate(:update)
-
             {:ok, updated_account, Account.challenge_changeset(updated_account, %{})}
 
           _ ->
@@ -88,21 +74,9 @@ defmodule GenexRemote.Auth do
 
   @spec submit_challenge(Account.t(), map()) :: {:ok, Account.t()} | {:error, Changeset.t()}
   def submit_challenge(account, params) do
-    challenge_changeset = Account.challenge_changeset(account, params)
-
-    challenge_changeset
+    account
+    |> Account.challenge_changeset(params)
     |> Repo.update()
-    |> case do
-      {:ok, account} ->
-        account
-        |> Account.all_changeset(%{})
-        |> Repo.replicate(:update)
-
-        {:ok, account}
-
-      err ->
-        err
-    end
   end
 
   @spec send_magic_link(String.t()) :: :ok
@@ -156,23 +130,12 @@ defmodule GenexRemote.Auth do
         |> Repo.update()
         |> case do
           {:ok, account} ->
-            account
-            |> Account.all_changeset(%{})
-            |> Repo.replicate(:update)
-
-            :telemetry.execute([:auth, :api_login_challenge, :generated], %{}, %{
-              account: account
-            })
-
+            Metrics.emit_login_challenge_created(account)
             {:ok, account.encrypted_challenge}
 
-          err ->
-            :telemetry.execute([:auth, :api_login_challenge, :failed], %{}, %{
-              email: email,
-              err: err
-            })
-
-            err
+          {:error, changeset} ->
+            Metrics.emit_login_challenge_failed(email, changeset.errors)
+            {:error, changeset}
         end
     end
   end
@@ -187,17 +150,6 @@ defmodule GenexRemote.Auth do
         account
         |> Account.challenge_changeset(%{challenge: response, login_token: nil})
         |> Repo.update()
-        |> case do
-          {:ok, account} ->
-            account
-            |> Account.all_changeset(%{})
-            |> Repo.replicate(:update)
-
-            {:ok, account}
-
-          err ->
-            err
-        end
     end
   end
 
@@ -218,16 +170,5 @@ defmodule GenexRemote.Auth do
     account
     |> Account.token_changeset(%{login_token: token})
     |> Repo.update()
-    |> case do
-      {:ok, account} ->
-        account
-        |> Account.all_changeset(%{})
-        |> Repo.replicate(:update)
-
-        {:ok, account}
-
-      err ->
-        err
-    end
   end
 end
