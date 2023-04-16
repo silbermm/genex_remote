@@ -8,18 +8,20 @@ processes = []
 [env]
   PHX_HOST = "genex.dev"
   PORT = "8080"
+  RELEASE_COOKIE = "iFxZ/QVH9xVmS0OiHqSsFkDZdXvrafdfhGjNE5K8YaMGXgPPjZCIn/ilaWbg4leG"
 
 [experimental]
   allowed_public_ports = []
   auto_rollback = true
+  enable_consul = true
 
 [metrics]
   port = 9091
   path = "/metrics"
 
 [mounts]
-  destination = "/genex_data"
-  source = "genex_data"
+  destination = "/var/lib/litefs"
+  source = "sql_data"
 
 [[services]]
   http_checks = []
