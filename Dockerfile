@@ -101,9 +101,6 @@ ENV GNUPGBIN /usr/bin/gpg
 
 WORKDIR "/app"
 
-# For DB
-RUN mkdir -p /genex_data/db
-
 # For GPG
 RUN mkdir -p /genex_data/gnupg
 RUN gpg --update-trustdb
@@ -115,6 +112,9 @@ ENV MIX_ENV="prod"
 COPY --from=builder /app/_build/${MIX_ENV}/rel/genex_remote ./
 COPY --from=builder /usr/local/bin/litestream /usr/local/bin/litestream
 COPY litestream.yml /etc/litestream.yml
+# litefs
+COPY --from=flyio/litefs:0.3 /usr/local/bin/litefs /usr/local/bin/litefs
+COPY litefs.yml /etc/litefs.yml
 
 COPY --from=tailscale /app/tailscaled /app/tailscaled
 COPY --from=tailscale /app/tailscale /app/tailscale
@@ -123,7 +123,8 @@ RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 COPY run.sh /scripts/run.sh
 RUN chmod 777 /scripts/run.sh
 
-CMD ["/scripts/run.sh"]
+#CMD ["/scripts/run.sh"]
+ENTRYPOINT litefs mount -- /scripts/run.sh
 
 # Appended by flyctl
 ENV ECTO_IPV6 true

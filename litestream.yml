@@ -1,10 +1,10 @@
 dbs:
-  - path: /genex_data/db/genex.db
+  - path: /var/lib/litefs/dbs/genex.db/database
     replicas:
       - type: s3
         bucket: genex
         path: db
         endpoint: ${REPLICA_URL}
-        skip-verify: false
+        skip-verify: true
         access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
         secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}
