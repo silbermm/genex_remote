@@ -9,6 +9,10 @@ echo "done $?"
 
 echo "100.100.20.30    silverstore.tail6c78e.ts.net" >> /etc/hosts
 
+mkdir -p /genex_data/db
+mkdir -p /genex_data/gnupg
+gpg --update-trustdb
+
 # Make sure GPG dir exists
 if [ -f /genex_data/gnupg ]; then
   echo "GPG directory already exists"
@@ -32,3 +36,4 @@ fi
 
 # Run litestream with your app as the subprocess.
 exec litestream replicate -exec "/app/bin/server"
+#exec /app/bin/server

@@ -71,11 +71,6 @@ COPY config/runtime.exs config/
 COPY rel rel
 RUN mix release
 
-
-# Fetch the LiteFS binary using a multi-stage build.
-FROM flyio/litefs:0.2 AS litefs
-
-
 FROM alpine:latest as tailscale
 WORKDIR /app
 ENV TSFILE=tailscale_1.34.1_amd64.tgz
@@ -116,6 +111,9 @@ COPY litestream.yml /etc/litestream.yml
 COPY --from=flyio/litefs:0.3 /usr/local/bin/litefs /usr/local/bin/litefs
 COPY litefs.yml /etc/litefs.yml
 
+COPY --from=flyio/litefs:0.3 /usr/local/bin/litefs /usr/local/bin/litefs
+COPY litefs.yml /etc/litefs.yml
+
 COPY --from=tailscale /app/tailscaled /app/tailscaled
 COPY --from=tailscale /app/tailscale /app/tailscale
 RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
@@ -123,7 +121,6 @@ RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 COPY run.sh /scripts/run.sh
 RUN chmod 777 /scripts/run.sh
 
-#CMD ["/scripts/run.sh"]
 ENTRYPOINT litefs mount -- /scripts/run.sh
 
 # Appended by flyctl
