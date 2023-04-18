@@ -21,8 +21,6 @@ ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
 FROM ${BUILDER_IMAGE} as builder
 
-ADD https://github.com/benbjohnson/litestream/releases/download/v0.3.9/litestream-v0.3.9-linux-amd64-static.tar.gz /tmp/litestream.tar.gz
-RUN tar -C /usr/local/bin -xzf /tmp/litestream.tar.gz
 
 # install build dependencies
 RUN apt-get update -y && apt-get install -y build-essential git gpg libgpgme-dev curl pkg-config \
@@ -71,17 +69,13 @@ COPY config/runtime.exs config/
 COPY rel rel
 RUN mix release
 
-FROM alpine:latest as tailscale
 WORKDIR /app
-ENV TSFILE=tailscale_1.34.1_amd64.tgz
-RUN wget https://pkgs.tailscale.com/stable/${TSFILE} && \
-  tar xzf ${TSFILE} --strip-components=1
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
 
-RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales gpg libgpgme-dev bash curl fuse sqlite3 iptables \
+RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales gpg libgpgme-dev bash curl fuse3 sqlite3 iptables net-tools \
   && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Set the locale
@@ -105,23 +99,15 @@ ENV MIX_ENV="prod"
 
 #copy the final release from the build stage
 COPY --from=builder /app/_build/${MIX_ENV}/rel/genex_remote ./
-COPY --from=builder /usr/local/bin/litestream /usr/local/bin/litestream
-COPY litestream.yml /etc/litestream.yml
+
 # litefs
-COPY --from=flyio/litefs:0.3 /usr/local/bin/litefs /usr/local/bin/litefs
+COPY --from=flyio/litefs:0.4 /usr/local/bin/litefs /usr/local/bin/litefs
 COPY litefs.yml /etc/litefs.yml
-
-COPY --from=flyio/litefs:0.3 /usr/local/bin/litefs /usr/local/bin/litefs
-COPY litefs.yml /etc/litefs.yml
-
-COPY --from=tailscale /app/tailscaled /app/tailscaled
-COPY --from=tailscale /app/tailscale /app/tailscale
-RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 
 COPY run.sh /scripts/run.sh
 RUN chmod 777 /scripts/run.sh
 
-ENTRYPOINT litefs mount -- /scripts/run.sh
+ENTRYPOINT /usr/local/bin/litefs mount -- /scripts/run.sh
 
 # Appended by flyctl
 ENV ECTO_IPV6 true
