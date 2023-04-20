@@ -48,7 +48,7 @@ defmodule GenexRemoteWeb.Router do
   scope "/api", GenexRemoteWeb do
     pipe_through :api
 
-    get "/login/:email", SessionController, :api_request_challenge
+    put "/login/:email", SessionController, :api_request_challenge
     post "/login/:email", SessionController, :api_submit_challenge_response
 
     scope "/" do
