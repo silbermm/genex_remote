@@ -10,6 +10,7 @@ defmodule GenexRemote.Metrics.EventMetrics do
 
   @audit_prefix [:audit, :event]
   @db_primary_prefix [:db, :primary]
+  @db_primary_write_prefix [:db, :primary_write]
 
   @impl true
   def event_metrics(_opts) do
@@ -29,6 +30,20 @@ defmodule GenexRemote.Metrics.EventMetrics do
           measurment: :total,
           description: "DB Primary Changed Totals",
           tags: [:old_primary_node, :new_primary_node, :reporting_node]
+        ),
+        counter(
+          @db_primary_write_prefix ++ [:succeeded],
+          event_name: @db_primary_write_prefix ++ [:succeeded],
+          measurment: :total,
+          description: "DB Primary Write Success Totals",
+          tags: [:remote]
+        ),
+        counter(
+          @db_primary_write_prefix ++ [:failed],
+          event_name: @db_primary_write_prefix ++ [:failed],
+          measurment: :total,
+          description: "DB Primary Write Failure Totals",
+          tags: [:remote]
         )
       ]
     )

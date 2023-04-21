@@ -24,7 +24,7 @@ defmodule GenexRemote.Auth do
       |> Account.changeset(changes)
       |> Account.challenge_creation_changeset()
 
-    case Repo.insert(changeset) do
+    case Repo.primary_write(changeset, :insert) do
       {:ok, account} ->
         Metrics.emit_registration_success(account)
 
@@ -55,7 +55,7 @@ defmodule GenexRemote.Auth do
         account
         |> Account.changeset(%{})
         |> Account.challenge_creation_changeset()
-        |> Repo.update()
+        |> Repo.primary_write(:update)
         |> case do
           {:ok, updated_account} ->
             {:ok, updated_account, Account.challenge_changeset(updated_account, %{})}
@@ -76,7 +76,7 @@ defmodule GenexRemote.Auth do
   def submit_challenge(account, params) do
     account
     |> Account.challenge_changeset(params)
-    |> Repo.update()
+    |> Repo.primary_write(:update)
   end
 
   @spec send_magic_link(String.t()) :: :ok
@@ -127,7 +127,7 @@ defmodule GenexRemote.Auth do
         account
         |> Account.changeset(%{})
         |> Account.create_challenge()
-        |> Repo.update()
+        |> Repo.primary_write(:update)
         |> case do
           {:ok, account} ->
             Metrics.emit_login_challenge_created(account)
@@ -149,7 +149,7 @@ defmodule GenexRemote.Auth do
       account ->
         account
         |> Account.challenge_changeset(%{challenge: response, login_token: nil})
-        |> Repo.update()
+        |> Repo.primary_write(:update)
     end
   end
 
@@ -169,6 +169,6 @@ defmodule GenexRemote.Auth do
   def update_login_token(%Account{} = account, token) do
     account
     |> Account.token_changeset(%{login_token: token})
-    |> Repo.update()
+    |> Repo.primary_write(:update)
   end
 end

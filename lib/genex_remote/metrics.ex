@@ -50,10 +50,22 @@ defmodule GenexRemote.Metrics do
   end
 
   def emit_primary_changed(old_node, new_primary_node, reporting_node) do
-    :telemetry.execute([:db, :primary, :changed], %{count: 1}, %{
+    :telemetry.execute([:db, :primary, :changed], %{total: 1}, %{
       new_primary_node: new_primary_node,
       old_primary_node: old_node,
       reporting_node: reporting_node
+    })
+  end
+
+  def emit_primary_write_success(is_remote?) do
+    :telemetry.execute([:db, :primary_write, :succeeded], %{total: 1}, %{
+      remote: is_remote?
+    })
+  end
+
+  def emit_primary_write_failed(is_remote?) do
+    :telemetry.execute([:db, :primary_write, :failed], %{total: 1}, %{
+      remote: is_remote?
     })
   end
 end

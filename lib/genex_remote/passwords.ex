@@ -25,6 +25,6 @@ defmodule GenexRemote.Passwords do
     changeset =
       PasswordData.changeset(%PasswordData{}, %{account_id: account_id, data: passwords})
 
-    Repo.insert(changeset)
+    Repo.primary_write(changeset, :insert)
   end
 end

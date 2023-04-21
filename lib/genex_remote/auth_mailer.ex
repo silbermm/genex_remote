@@ -55,7 +55,7 @@ defmodule GenexRemote.AuthMailer do
 
     account
     |> Account.token_changeset(%{login_token: token})
-    |> Repo.update()
+    |> Repo.primary_write(:update)
     |> case do
       {:error, _changeset} ->
         Logger.error("#{@log_prefix} unable to update the account")
