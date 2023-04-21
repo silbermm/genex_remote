@@ -9,12 +9,29 @@ defmodule GenexRemote.Metrics.EventMetrics do
   # @sync_prefix [:sync, :passwords]
 
   @audit_prefix [:audit, :event]
+  @db_primary_prefix [:db, :primary]
 
   @impl true
   def event_metrics(_opts) do
     [
       auth_metrics(),
+      db_metrics()
     ]
+  end
+
+  defp db_metrics() do
+    Event.build(
+      :db,
+      [
+        counter(
+          @db_primary_prefix ++ [:changed],
+          event_name: @db_primary_prefix ++ [:changed],
+          measurment: :total,
+          description: "DB Primary Changed Totals",
+          tags: [:old_primary_node, :new_primary_node, :reporting_node]
+        )
+      ]
+    )
   end
 
   defp auth_metrics() do
@@ -38,19 +55,4 @@ defmodule GenexRemote.Metrics.EventMetrics do
       ]
     )
   end
-
-#   defp audit_metrics() do
-#     Event.build(
-#       :audit,
-#       [
-#         counter(
-#           @audit_prefix,
-#           event_name: @audit_prefix,
-#           measurment: :total,
-#           description: "Latest event for an email",
-#           tags: [:email, :event]
-#         )
-#       ]
-#     )
-#   end
 end

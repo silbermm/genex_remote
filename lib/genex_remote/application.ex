@@ -16,7 +16,8 @@ defmodule GenexRemote.Application do
       {Phoenix.PubSub, name: GenexRemote.PubSub},
       GenexRemoteWeb.Endpoint,
       {PartitionSupervisor, child_spec: DynamicSupervisor, name: GenexRemote.DynamicSupervisors},
-      {Cluster.Supervisor, [topologies, [name: GenexRemote.ClusterSupervisor]]}
+      {Cluster.Supervisor, [topologies, [name: GenexRemote.ClusterSupervisor]]},
+      GenexRemote.PrimarySyncWorker
     ]
 
     opts = [strategy: :one_for_one, name: GenexRemote.Supervisor]

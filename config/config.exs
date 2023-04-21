@@ -30,7 +30,7 @@ config :tailwind,
 
 config :genex_remote, GenexRemote.PromEx,
   metrics_server: [
-    port: 9091,
+    port: System.get_env("PROM_PORT") || 9091,
     path: "/metrics",
     protocol: :http,
     pool_size: 5

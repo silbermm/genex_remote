@@ -9,7 +9,7 @@ iex:
 	iex --sname a -S mix phx.server
 
 iex2:
-	DATABASE_PATH="${DB_PATH}" PORT=${PORT} iex --sname b -S mix phx.server
+	DATABASE_PATH="${DB_PATH}" PORT=${PORT} PROM_PORT=9092 iex --sname b -S mix phx.server
 
 prometheus:
 	sudo prometheus --config.file=prometheus.yml

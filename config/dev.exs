@@ -35,8 +35,8 @@ config :libcluster,
       strategy: Cluster.Strategy.Epmd,
       config: [
         hosts: [
-          :a@silberthru,
-          :b@silberthru
+          :"a@silber-lemur",
+          :"b@silber-lemur"
         ]
       ]
     ]

@@ -3,9 +3,6 @@ defmodule GenexRemote.Metrics do
   Emits telemetry events
   """
 
-  @doc """
-  Emits a login event and an audit event
-  """
   def emit_login_success(email, account_id) do
     :telemetry.execute(
       [:auth, :login, :success],
@@ -49,6 +46,14 @@ defmodule GenexRemote.Metrics do
     :telemetry.execute([:auth, :api_login_challenge, :failed], %{}, %{
       email: email,
       error: error
+    })
+  end
+
+  def emit_primary_changed(old_node, new_primary_node, reporting_node) do
+    :telemetry.execute([:db, :primary, :changed], %{count: 1}, %{
+      new_primary_node: new_primary_node,
+      old_primary_node: old_node,
+      reporting_node: reporting_node
     })
   end
 end
