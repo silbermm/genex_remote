@@ -52,7 +52,8 @@ defmodule GenexRemote.MixProject do
       {:prom_ex, "~> 1.7"},
       {:heroicons, "~> 0.5.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:tailwind, "~> 0.1.6", runtime: Mix.env() == :dev}
+      {:tailwind, "~> 0.1.6", runtime: Mix.env() == :dev},
+      {:logger_json, "~> 5.1"}
     ]
   end
 

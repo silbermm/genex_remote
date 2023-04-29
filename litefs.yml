@@ -25,12 +25,3 @@ lease:
   consul:
     url: "${FLY_CONSUL_URL}"
     key: "litefs/${FLY_APP_NAME}"
-proxy:
-  # Bind address for the proxy to listen on.
-  addr: ":8081"
-
-  # Hostport of your application.
-  target: "localhost:8080"
-
-  # Filename of the SQLite database you want to use for TXID tracking.
-  db: "genex.db"
