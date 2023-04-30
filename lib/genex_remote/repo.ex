@@ -23,8 +23,6 @@ defmodule GenexRemote.Repo do
           Metrics.emit_primary_write_success(_is_remote? = false)
           apply(__MODULE__, function, [changeset_struct, opts])
         else
-          Logger.info("Not the primary node: #{node()} != #{p_node}")
-
           case :rpc.call(p_node, __MODULE__, function, [
                  changeset_struct,
                  opts
