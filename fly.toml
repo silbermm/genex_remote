@@ -1,9 +1,9 @@
 # fly.toml file generated for genex on 2022-11-06T20:42:36-05:00
-
 app = "genex"
 kill_signal = "SIGTERM"
 kill_timeout = 5
 processes = []
+primary_region = "iad"
 
 [env]
   PHX_HOST = "genex.dev"
@@ -48,3 +48,7 @@ processes = []
     interval = "15s"
     restart_limit = 0
     timeout = "2s"
+
+[[services]]
+  internal_port = 8081
+  protocol = "tcp"

@@ -62,7 +62,7 @@ defmodule GenexRemoteWeb.SessionControllerTest do
       |> Ecto.Changeset.change(%{
         validated: DateTime.truncate(DateTime.utc_now(), :second)
       })
-      |> Repo.insert()
+      |> Repo.primary_write(:insert)
 
     %{account: account, token: token, email: email}
   end

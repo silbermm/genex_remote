@@ -4,13 +4,12 @@ defmodule GenexRemote.AuthMailer do
   via `GenexRemote.Auth.send_magic_link/1`.
 
   It takes an email address as an argument then:
-  * looks up a valid account for that email
-  * generates a login token
-  * emails login token
-  * terminates
+    * looks up a valid account for that email
+    * generates a login token
+    * emails login token
+    * terminates
 
   Supervised by a DynamicSupervisor `GenexRemote.DynamicSupervisors`
-
   """
   use GenServer, restart: :transient
 
@@ -56,17 +55,13 @@ defmodule GenexRemote.AuthMailer do
 
     account
     |> Account.token_changeset(%{login_token: token})
-    |> Repo.update()
+    |> Repo.primary_write(:update)
     |> case do
       {:error, _changeset} ->
         Logger.error("#{@log_prefix} unable to update the account")
         {:stop, :normal, state}
 
-      {:ok, updated_account} ->
-        updated_account
-        |> Account.all_changeset(%{login_token: token})
-        |> Repo.replicate(:update)
-
+      {:ok, _updated_account} ->
         {:noreply, %{state | token: token}, {:continue, :send_mail}}
     end
   end

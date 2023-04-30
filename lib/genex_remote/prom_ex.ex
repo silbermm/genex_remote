@@ -2,7 +2,6 @@ defmodule GenexRemote.PromEx do
   @moduledoc """
 
   """
-
   use PromEx, otp_app: :genex_remote
 
   alias PromEx.Plugins
@@ -13,12 +12,7 @@ defmodule GenexRemote.PromEx do
       Plugins.Application,
       Plugins.Beam,
       Plugins.PhoenixLiveView,
-      # Plugins.Ecto,
-      # Plugins.Oban,
-      # Plugins.Absinthe,
-      # Plugins.Broadway,
-
-      # Add your own PromEx metrics plugins
+      Plugins.Ecto,
       GenexRemote.Metrics.EventMetrics
     ]
   end

@@ -3,53 +3,44 @@ defmodule GenexRemote.Repo do
     otp_app: :genex_remote,
     adapter: Ecto.Adapters.SQLite3
 
+  alias GenexRemote.Metrics
+  alias GenexRemote.PrimarySyncWorker
+
+  require Logger
+
+  defmodule Error do
+    defexception [:message]
+  end
+
   @doc """
-  Replicate the query on the the other nodes in the cluster
+  Find the Primary node which is the only node that can write to the DB
+  and sends the write request to it.
   """
-  def replicate(func) when is_function(func) do
-    _ =
-      for node <- Node.list() do
-        GenServer.cast({GenexRemote.RepoReplication, node}, {:replicate, func})
-      end
+  def primary_write(changeset_struct, opts \\ [], function) do
+    case PrimarySyncWorker.get_primary_node() do
+      {:ok, p_node} ->
+        if node() == p_node do
+          Metrics.emit_primary_write_success(_is_remote? = false)
+          apply(__MODULE__, function, [changeset_struct, opts])
+        else
+          case :rpc.call(p_node, __MODULE__, function, [
+                 changeset_struct,
+                 opts
+               ]) do
+            {:badrpc, reason} ->
+              Metrics.emit_primary_write_failed(_is_remote? = true)
+              raise(Error, "Unable to remote write SQL - #{inspect(reason)}")
 
-    :ok
-  end
+            resp ->
+              Metrics.emit_primary_write_success(_is_remote? = true)
+              resp
+          end
+        end
 
-  def replicate({:ok, data_to_replicate} = ret, operation) when operation in [:insert, :update] do
-    _ =
-      for node <- Node.list() do
-        GenServer.cast(
-          {GenexRemote.RepoReplication, node},
-          {:replicate, data_to_replicate, operation}
-        )
-      end
-
-    ret
-  end
-
-  def replicate({:error, _changeset} = ret, _), do: ret
-
-  def replicate(%Ecto.Changeset{} = changeset, operation) when operation in [:insert, :update] do
-    _ =
-      for node <- Node.list() do
-        GenServer.cast(
-          {GenexRemote.RepoReplication, node},
-          {:replicate, changeset, operation}
-        )
-      end
-
-    {:ok, changeset}
-  end
-
-  def replicate(schema, :insert) do
-    _ =
-      for node <- Node.list() do
-        GenServer.cast(
-          {GenexRemote.RepoReplication, node},
-          {:replicate, schema, :insert}
-        )
-      end
-
-    {:ok, schema}
+      _ ->
+        Logger.error("unable to find a primary node, defaulting to local node to write sql")
+        Metrics.emit_primary_write_success(_is_remote? = false)
+        apply(__MODULE__, function, [changeset_struct, opts])
+    end
   end
 end

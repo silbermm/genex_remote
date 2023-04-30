@@ -10,7 +10,7 @@ defmodule GenexRemoteWeb.SessionController do
     case Auth.authenticate_by_email_token(email, token) do
       {:ok, account} ->
         token = GenexRemoteWeb.Tokens.sign_auth_token(account.id)
-        Metrics.emit_login_event(email, account.id)
+        Metrics.emit_login_success(email, account.id)
 
         conn
         |> put_session(:auth_token, token)

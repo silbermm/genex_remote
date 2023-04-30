@@ -59,14 +59,12 @@ defmodule GenexRemote.Auditor do
 
   @impl true
   def handle_continue(:commit, %{changeset: %Changeset{valid?: true} = changeset} = state) do
-    case Repo.insert(changeset) do
+    case Repo.primary_write(changeset, :insert) do
       {:ok, log} ->
         Logger.info([
           @log_prefix,
           "Successfully wrote audit log"
         ])
-
-        Repo.replicate(Repo.preload(log, [:account]), :insert)
 
         log.account_id
         |> PubSub.account_logs()

@@ -52,7 +52,15 @@ defmodule GenexRemote.MixProject do
       {:prom_ex, "~> 1.7"},
       {:heroicons, "~> 0.5.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:tailwind, "~> 0.1.6", runtime: Mix.env() == :dev}
+      {:tailwind, "~> 0.1.6", runtime: Mix.env() == :dev},
+      {:logger_json, "~> 5.1"},
+      {:opentelemetry_exporter, "~> 1.0"},
+      {:opentelemetry, "~> 1.0"},
+      {:opentelemetry_api, "~> 1.0"},
+      {:opentelemetry_ecto, "~> 1.0"},
+      {:opentelemetry_liveview, "~> 1.0.0-rc.4"},
+      {:opentelemetry_phoenix, "~> 1.0"},
+      {:opentelemetry_cowboy, "~> 0.2"}
     ]
   end
 
