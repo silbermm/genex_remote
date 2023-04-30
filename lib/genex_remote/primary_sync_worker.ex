@@ -39,17 +39,14 @@ defmodule GenexRemote.PrimarySyncWorker do
 
   @impl true
   def handle_continue(:find_primary, state) do
-    Logger.info("Finding primary")
     {node, hostname} = find_primary()
     Process.send_after(self(), :poll, @polling_time)
-    Logger.info("Setting primary in #{node()} to #{node}")
     {:noreply, %{state | primary_hostname: hostname, primary_node: node}}
   end
 
   @impl true
   def handle_info(:poll, state) do
     {node, hostname} = find_primary()
-    Logger.info("Setting primary in #{node()} to #{node}")
     Process.send_after(self(), :poll, @polling_time)
     {:noreply, %{state | primary_hostname: hostname, primary_node: node}}
   end
@@ -110,7 +107,6 @@ defmodule GenexRemote.PrimarySyncWorker do
     |> File.read()
     |> case do
       {:ok, hostname} ->
-        Logger.info(".primary file contents - #{inspect(hostname)}")
         String.trim(hostname)
 
       err ->
