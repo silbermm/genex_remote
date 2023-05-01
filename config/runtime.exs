@@ -30,7 +30,8 @@ if config_env() == :prod do
   config :opentelemetry_exporter,
     otlp_protocol: :grpc,
     otlp_traces_endpoint: System.fetch_env!("OTLP_ENDPOINT"),
-    otlp_headers: [{"Authorization", "Basic #{otel_auth}"}]
+    otlp_headers: [{"Authorization", "Basic #{otel_auth}"}],
+    otlp_compression: :gzip
 
   database_path =
     System.get_env("DATABASE_PATH") ||
